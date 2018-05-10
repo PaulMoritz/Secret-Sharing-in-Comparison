@@ -52,7 +52,3 @@ lvl_list must be of Format [[num_level_1, threshold_level_1],[num_level_2, tresh
     print("Setup \"" + name +"\" successfully created!")
     file.close()
 
-
-delete_setup("Crypto")
-setup("Crypto", [[2, 3], [1, 2], [3, 8]], True)
-# list_setups()
