@@ -26,3 +26,8 @@ params:
 
 list_setups()
 lists all setups currently created in the DATA-folder
+
+
+example calls:
+setup("Big_Company", [[1,0],[3,2],[7,4],[35,10]], True)
+delete_setup("Big_Company")
