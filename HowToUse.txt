@@ -1,0 +1,10 @@
+Setup
+
+use setup.py to create a new setup for a scenario to test.
+Parameters are:
+
+- conjunctive (boolean): wheter the hierarchy is conjunctive or not
+- lvl_list (list of integer) : a list with a list of one Integervalue for the number of persons in each level and
+	one Integervalue for the threshold of the level.
+	e.g: [[2,1],[5,3],[9,6]]
+- name (string): a unique name for each setup, to use it in the other functions.
