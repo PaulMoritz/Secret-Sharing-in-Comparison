@@ -3,10 +3,11 @@ import os
 import shutil
 import time
 
+cwd = os.getcwd()
+datapath = os.path.join(cwd, "DATA")
 
 # deletes the folder and all its files if a directory with the given name exists
 def delete_setup(name):
-    cwd = os.getcwd()
     filepath = os.path.join(cwd, "DATA", name)
     if os.path.exists(filepath):
         shutil.rmtree(filepath)
@@ -16,8 +17,6 @@ def delete_setup(name):
 
 
 def list_setups():
-    cwd = os.getcwd()
-    datapath = os.path.join(cwd, "DATA")
     print("Current setups are:")
     for subdir, dirs, files in os.walk(datapath):
         for directory in dirs:
@@ -27,8 +26,6 @@ def list_setups():
 # builds a new setup with all given parameters and
 # creates a directory in the DATA-path with an info file
 def setup(name, lvl_list, conjunctive=True):
-    # create path
-    cwd = os.getcwd()
     filepath = os.path.join(cwd, "DATA", name)
     # check if name already exists, return with info printed when yes
     if os.path.exists(filepath):
@@ -52,3 +49,27 @@ lvl_list must be of Format [[num_level_1, threshold_level_1],[num_level_2, tresh
     print("Setup \"" + name +"\" successfully created!")
     file.close()
 
+
+def get_info(name):
+    filepath = os.path.join(cwd, "DATA", name, 'info.txt')
+    if not os.path.exists(filepath):
+        print("Setup does not exist.")
+        return
+    with open(filepath, 'r') as infofile:
+        # get name
+        name = infofile.readline()
+        # get Con/Disjuntive
+        conjunctive = infofile.readline()
+        if conjunctive:
+            type_string = 'Conjunctive'
+        else:
+            type_string = 'Disjunctive'
+        # get creation date
+        date = infofile.readline()
+        i=0
+        lines = infofile.read().splitlines()
+        #Print all level-Info:
+        print("Name: " + name + '\n' + "Type: " + type_string + '\n' + "Created: " + date)
+        print("Level strucure is displayed as [num_people, treshold]")
+        for i in range(lines.__len__()):
+            print("Level " + str(i+1) + " structure is: " + str(lines[i]))
