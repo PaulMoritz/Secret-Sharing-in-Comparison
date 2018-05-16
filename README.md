@@ -27,6 +27,11 @@ params:
 list_setups()
 lists all setups currently created in the DATA-folder
 
+get_info(name)
+prints all info about the setup
+params:
+- name (string): info of the named setup is displayed
+
 
 example calls:
 setup("Big_Company", [[1,0],[3,2],[7,4],[35,10]], True)
