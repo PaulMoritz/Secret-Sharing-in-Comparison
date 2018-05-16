@@ -7,9 +7,8 @@ Setup
 
 use setup.py to create a new setup for a scenario to test.
 
-setup(name, lvl_list, conjunctive)
+setup(name, lvl_list, conjunctive):
 sets up a new scenario
-params:
 - name (string): a unique name for each setup, to use it in the other functions. Meaningful names can be helpful (e.g. "CompanyName"_levelstructure)
 - lvl_list (list of integer) : a list with a list of one Integervalue for the number of persons in each level and
 	one Integervalue for the threshold of the level.
@@ -18,21 +17,20 @@ params:
 
 
 
-delete_setup(name)
+delete_setup(name):
 deletes a given directory
-params:
 - name (string): the name of the directory to delete
 
 
-list_setups()
+list_setups():
 lists all setups currently created in the DATA-folder
 
 get_info(name)
 prints all info about the setup
-params:
 - name (string): info of the named setup is displayed
 
 
 example calls:
+
 setup("Big_Company", [[1,0],[3,2],[7,4],[35,10]], True)
 delete_setup("Big_Company")
