@@ -2,6 +2,11 @@ import numpy as np
 import os
 import shutil
 import time
+import csv
+
+#
+# TODO: more comments!
+#
 
 cwd = os.getcwd()
 datapath = os.path.join(cwd, "DATA")
@@ -42,12 +47,13 @@ lvl_list must be of Format [[num_level_1, threshold_level_1],[num_level_2, tresh
                 print("Error: Non-Integer value as level/threshold.")
                 return
     os.mkdir(filepath)
-    file = open(os.path.join(filepath, "info.txt"), 'w+')
-    file.write(name + "\n" + str(conjunctive) + "\n" + str(time.strftime("%d.%m.%Y at %H:%M:%S")) + "\n")
-    for level in lvl_list:
-        file.write(str(level) + "\n")
+    created = str(time.strftime("%d.%m.%Y at %H:%M:%S"))
+    with open(os.path.join(filepath, "info.csv"), 'w+', newline ='', encoding ='utf8') as file:
+        writer = csv.writer(file,delimiter=',')
+        metadata =[['Name', name], ['Created', created], ["Conjunctive?",conjunctive], [''],["number of people", "threshold"] ]
+        writer.writerows(metadata)
+        writer.writerows(lvl_list)
     print("Setup \"" + name +"\" successfully created!")
-    file.close()
 
 
 def get_info(name):
@@ -73,3 +79,6 @@ def get_info(name):
         print("Level strucure is displayed as [num_people, treshold]")
         for i in range(lines.__len__()):
             print("Level " + str(i+1) + " structure is: " + str(lines[i]))
+
+#delete_setup("Big_Company")
+#setup("Big_Company", [[1,0],[3,2],[7,4],[35,10]], True)
