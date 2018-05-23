@@ -1,15 +1,16 @@
-import numpy as np
 import os
 import shutil
 import time
 import csv
 
 #
-# TODO: more comments!
+# TODO: delete testcases
 #
 
+# path to DATA directory
 cwd = os.getcwd()
 datapath = os.path.join(cwd, "DATA")
+
 
 # deletes the folder and all its files if a directory with the given name exists
 def delete_setup(name):
@@ -21,6 +22,7 @@ def delete_setup(name):
         print("Name does not exist.")
 
 
+# lists all created setups in the DATA directory
 def list_setups():
     print("Current setups are:")
     for subdir, dirs, files in os.walk(datapath):
@@ -40,45 +42,58 @@ def setup(name, lvl_list, conjunctive=True):
     for level in lvl_list:
         if level.__len__() != 2:
             print("""Wrong number of Arguments in lvl_list: list of level with length """ + str(level.__len__()) + """ found.
-lvl_list must be of Format [[num_level_1, threshold_level_1],[num_level_2, treshold_level_2],....]""")
+lvl_list must be of Format [[num_level_1, threshold_level_1],[num_level_2, threshold_level_2],....]""")
             return
         for element in level:
             if not isinstance(element, int):
                 print("Error: Non-Integer value as level/threshold.")
                 return
-    os.mkdir(filepath)
+    # create new directory to store the data in
+    try:
+        os.mkdir(filepath)
+    except OSError as e:
+        print("Directory could not be created, please try again."
+              "Be sure you don't use any of the following characters in the setup name: \ / : * ? < > |")
+        print(e)
+        return
     created = str(time.strftime("%d.%m.%Y at %H:%M:%S"))
-    with open(os.path.join(filepath, "info.csv"), 'w+', newline ='', encoding ='utf8') as file:
-        writer = csv.writer(file,delimiter=',')
-        metadata =[['Name', name], ['Created', created], ["Conjunctive?",conjunctive], [''],["number of people", "threshold"] ]
+    # write data in csv format
+    with open(os.path.join(filepath, "info.csv"), 'w+', newline='', encoding='utf8') as file:
+        writer = csv.writer(file, delimiter=',')
+        metadata = [['Name', name], ['Created', created], ["Conjunctive?", conjunctive], [''],
+                    ["number of people", "threshold"]]
         writer.writerows(metadata)
         writer.writerows(lvl_list)
-    print("Setup \"" + name +"\" successfully created!")
+    print("Setup \"" + name + "\" successfully created!")
 
 
+# print the info to a given setup
 def get_info(name):
-    filepath = os.path.join(cwd, "DATA", name, 'info.txt')
+    filepath = os.path.join(cwd, "DATA", name, 'info.csv')
+    # check if setup exists
     if not os.path.exists(filepath):
         print("Setup does not exist.")
         return
     with open(filepath, 'r') as infofile:
+        reader = csv.reader(infofile, delimiter=',')
         # get name
-        name = infofile.readline()
-        # get Con/Disjuntive
-        conjunctive = infofile.readline()
+        name = next(reader)[1]
+        # get creation date
+        date = next(reader)[1]
+        # get Con/Disjunctive
+        conjunctive = next(reader)[1]
         if conjunctive:
             type_string = 'Conjunctive'
         else:
             type_string = 'Disjunctive'
-        # get creation date
-        date = infofile.readline()
-        i=0
         lines = infofile.read().splitlines()
-        #Print all level-Info:
+        # Print all level-Info:
         print("Name: " + name + '\n' + "Type: " + type_string + '\n' + "Created: " + date)
-        print("Level strucure is displayed as [num_people, treshold]")
-        for i in range(lines.__len__()):
-            print("Level " + str(i+1) + " structure is: " + str(lines[i]))
+        print("Level structure is displayed as [num_people, threshold]:")
+        for i in range(lines.__len__() - 2):
+            print("Level " + str(i + 1) + " structure is: [" + str(lines[i + 2]) + "]")
 
-#delete_setup("Big_Company")
-#setup("Big_Company", [[1,0],[3,2],[7,4],[35,10]], True)
+
+# delete_setup("Big_Company")
+# setup("example", [[1, 0], [3, 2], [7, 4], [9, 5]], False)
+# get_info("Big_Company")
