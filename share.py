@@ -66,12 +66,11 @@ def generate_function(in_degree, message, prime_number):
 
 
 # derivates the given function in place (modulo the prime)
-# for each pair of coefficients te normal derivation rules apply
+# for each pair of coefficients the normal derivation rules apply
 # (factor = factor * exponent,
 #  exponent = exponent -1)
 def derivate_function(function_to_derivate, prime_number):
     for level in function_to_derivate:
-        # TODO Modulo here?
         level[0] = (level[0] * level[1]) % prime_number
         # catch x^0, don't subtract exponent here
         if level[1] > 0:
