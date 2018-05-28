@@ -90,8 +90,8 @@ def get_info(name):
         # Print all level-Info:
         print("Name: " + name + '\n' + "Type: " + type_string + '\n' + "Created: " + date)
         print("Level structure is displayed as [num_people, threshold]:")
-        for i in range(lines.__len__() - 2):
-            print("Level " + str(i + 1) + " structure is: [" + str(lines[i + 2]) + "]")
+        for i in range(len(lines) - 2):
+            print("Level " + str(i) + " structure is: [" + str(lines[i + 2]) + "]")
 
 
 # delete_setup("Big_Company")
