@@ -1,6 +1,5 @@
 import os
 import numpy as np
-from sympy import *
 import pandas as pd
 import csv
 from math import pow
@@ -40,9 +39,9 @@ def share(message, setup, prime_number=31):
         for person in range(1, int(number) + 1):
             shareholder = ("s_{}_{}".format(person, level))
             if person == 1:
-                new_level = true
+                new_level = True
             else:
-                new_level = false
+                new_level = False
             result = calc_function(coefficients, level, person, new_level, prime_number)
             share_list[shareholder] = result
     print(share_list)
@@ -87,7 +86,7 @@ def derivate_function(function_to_derivate, prime_number):
 # ASSUMING we only calculate the results in ascending order of Level/Person
 def calc_function(coeff_list, level, x, new_level, prime_number):
     if level > 0 and new_level:
-        return calc_function(derivate_function(coeff_list, prime_number), level - 1, x, true, prime_number)
+        return calc_function(derivate_function(coeff_list, prime_number), level - 1, x, True, prime_number)
     else:
         result = 0
         for coefficient in coeff_list:
@@ -95,5 +94,5 @@ def calc_function(coeff_list, level, x, new_level, prime_number):
         return int((result % prime_number))
 
 
-share(3, "example")
+# share(3, "example")
 # derivate_function([[3, 0], [27, 1], [16, 2], [18, 3], [7, 4]], 31)
