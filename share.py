@@ -18,7 +18,12 @@ datapath = os.path.join(cwd, "DATA")
 # needs a message (Integer), a setup and an optional prime number for the finite field
 def share(message, setup, prime_number=31):
     filepath = os.path.join(datapath, setup, 'info.csv')
-    data = pd.read_csv(filepath, delimiter=',', )
+
+    try:
+        data = pd.read_csv(filepath, delimiter=',', )
+    except FileNotFoundError as e:
+        print("Setup does not exist. " + str(e))
+        return
     # create list of number of people in each level
     num = list(data.iloc[4:, 0])
     # create list of thresholds
@@ -93,5 +98,5 @@ def calc_function(coeff_list, level, x, new_level, prime_number):
         return int((result % prime_number))
 
 
-# share(3, "example")
+# share(3, "Example")
 # derivate_function([[3, 0], [27, 1], [16, 2], [18, 3], [7, 4]], 31)
