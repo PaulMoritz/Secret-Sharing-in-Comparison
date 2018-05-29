@@ -16,8 +16,11 @@ datapath = os.path.join(cwd, "DATA")
 def delete_setup(name):
     filepath = os.path.join(cwd, "DATA", name)
     if os.path.exists(filepath):
-        shutil.rmtree(filepath)
-        print("Setup deleted.")
+        try:
+            shutil.rmtree(filepath)
+            print("Setup deleted.")
+        except PermissionError as e:
+            print("Can't delete setup. Please check Error: " +str(e))
     else:
         print("Name does not exist.")
 
@@ -94,6 +97,6 @@ def get_info(name):
             print("Level " + str(i) + " structure is: [" + str(lines[i + 2]) + "]")
 
 
-# delete_setup("Big_Company")
-# setup("example", [[1, 0], [3, 2], [7, 4], [9, 5]], False)
+# delete_setup("zeros")
+# setup("zeros", [[1, 1], [0, 0], [3, 2]], False)
 # get_info("Big_Company")
