@@ -20,7 +20,7 @@ def delete_setup(name):
             shutil.rmtree(filepath)
             print("Setup deleted.")
         except PermissionError as e:
-            print("Can't delete setup. Please check Error: " +str(e))
+            print("Can't delete setup. Please check Error: " + str(e))
     else:
         print("Name does not exist.")
 
@@ -43,9 +43,10 @@ def setup(name, lvl_list, conjunctive=True):
         return
     # more troubleshooting with input parameters
     for level in lvl_list:
-        if level.__len__() != 2:
-            print("""Wrong number of Arguments in lvl_list: list of level with length """ + str(level.__len__()) + """ found.
-lvl_list must be of Format [[num_level_1, threshold_level_1],[num_level_2, threshold_level_2],....]""")
+        if len(level) != 2:
+            print("Wrong number of Arguments in lvl_list: list of level with length " + str(len(level)), end=''
+                  " found. lvl_list must be of Format [[num_level_1,"
+                  "threshold_level_1],[num_level_2, threshold_level_2],...]")
             return
         for element in level:
             if not isinstance(element, int):
@@ -63,11 +64,20 @@ lvl_list must be of Format [[num_level_1, threshold_level_1],[num_level_2, thres
     # write data in csv format
     with open(os.path.join(filepath, "info.csv"), 'w+', newline='', encoding='utf8') as file:
         writer = csv.writer(file, delimiter=',')
-        metadata = [['Name', name], ['Created', created], ["Conjunctive?", conjunctive], [''],
-                    ["number of people", "threshold"]]
+        metadata = [['Name', name], ['Created', created], ["Conjunctive?", conjunctive], ['']]
+                   # ["number of people", "threshold"]]
         writer.writerows(metadata)
-        writer.writerows(lvl_list)
+        # writer.writerows(lvl_list)
+    setup_stats(lvl_list, name)
     print("Setup \"" + name + "\" successfully created!")
+
+
+def setup_stats(stat_list, name):
+    filepath = os.path.join(cwd, "DATA", name)
+    with open(os.path.join(filepath, "level_stats.csv"), 'w+', newline='', encoding='utf8') as file:
+        writer = csv.writer(file, delimiter=',')
+        writer.writerows([["Level", "Threshold"]])
+        writer.writerows(stat_list)
 
 
 # print the info to a given setup
@@ -97,6 +107,6 @@ def get_info(name):
             print("Level " + str(i) + " structure is: [" + str(lines[i + 2]) + "]")
 
 
-# delete_setup("zeros")
-# setup("zeros", [[1, 1], [0, 0], [3, 2]], False)
+# delete_setup("another_exxample")
+# setup("another_exxample", [[1, 1], [2, 2], [4, 4]], False)
 # get_info("Big_Company")
