@@ -2,8 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 import csv
-from math import pow
-
+from tools import *
 
 #
 # TODO: delete testcases, delete unnecessary prints
@@ -17,7 +16,7 @@ datapath = os.path.join(cwd, "DATA")
 # creates shares for all Shareholders in one setup
 # needs a message (Integer), a setup and an optional prime number for the finite field
 def share(message, setup, prime_number=31):
-    filepath = os.path.join(datapath, setup, 'info.csv')
+    filepath = os.path.join(datapath, setup, 'level_stats.csv')
     if not is_prime(prime_number):
         print("Given prime_number is not a prime.")
         return
@@ -26,18 +25,16 @@ def share(message, setup, prime_number=31):
         print("Secret needs to be an integer.")
         return
     try:
-        data = pd.read_csv(filepath, delimiter=',', )
+        data = pd.read_csv(filepath, skiprows=1, header=None, delimiter=',', )
     except FileNotFoundError as e:
         print("Setup does not exist. " + str(e))
         return
     # create list of number of people in each level
     num = list(data.iloc[:, 0])
-    num = num[4:]
-    print("Read people from levels: " + str(num))
+    # print("Read people from levels: " + str(num))
     # create list of thresholds
     thresholds = list(data.iloc[:, 1])
-    thresholds = thresholds[4:]
-    # print(thresholds)
+    # print("Read thresholds " + str(thresholds))
     highest_threshold = max(thresholds)
     if not highest_threshold == thresholds[-1]:
         print("Wrong setup for conjunctive structure: threshold for "
@@ -48,8 +45,9 @@ def share(message, setup, prime_number=31):
     # get the number of all shareholders
     # generate random coefficients for 0 < c <= prime
     coefficients = generate_function(degree_of_function, message, prime_number)
-    print("The randomly generated function is: " + '\t', end='')
+    print("The randomly generated function is " + '\t', end='')
     print_function(coefficients)
+    print("With this function we calculate shares for the following shareholders:")
     # dict of shareholders and their secrets
     share_list = {}
     old_j = 0
@@ -62,12 +60,14 @@ def share(message, setup, prime_number=31):
         while j > old_j:
             derivate_function(coefficients, prime_number)
             old_j += 1
-            print("The " + str(old_j) + ". derivative of the function is: " + '\t', end='')
+            print("The " + str(old_j) + ". derivative of the function is " + '\t', end='')
             print_function(coefficients)
         # calculate values and append to the share_list dict for each shareholder
         for person in range(1, int(number) + 1):
             shareholder = ("s_{}_{}".format(person, level))
             # print(level)
+            if person == 1:
+                print("With this function we calculate shares for the following shareholders:")
             # calculate the value for the shareholder
             result = calc_function(coefficients, person, prime_number)
             print("Shareholder " + shareholder + "'s share is " + str(result))
@@ -79,7 +79,7 @@ def share(message, setup, prime_number=31):
         writer = csv.writer(shares)
         writer.writerow(["Shareholder", "Share"])
         writer.writerows(share_list.items())
-        print("Shares are saved to folder 'DATA/" + setup + "/shares.csv'.")
+        print("Shares are saved to folder 'DATA/" + setup + "/shares.csv'. Please don't edit the csv file manually.")
 
 
 # generates coefficients for the function
@@ -90,48 +90,11 @@ def generate_function(in_degree, message, prime_number):
     for i in range(1, in_degree + 1):
         a_i = np.random.randint(1, prime_number)
         coefficients.append([a_i, i])
-    print("coefficients are: " + str(coefficients))
+    # print("coefficients are: " + str(coefficients))
     return coefficients
 
 
-# derivates the given function in place (modulo the prime)
-# for each pair of coefficients the normal derivation rules apply
-# (factor = factor * exponent,
-#  exponent = exponent -1)
-def derivate_function(function_to_derivate, prime_number):
-    for level in function_to_derivate:
-        level[0] = (level[0] * level[1]) % prime_number
-        # catch x^0, don't subtract exponent here
-        if level[1] > 0:
-            level[1] -= 1
-        else:
-            pass
-    return function_to_derivate
-
-
-# calculate the y- values for each shareholder with their given x
-def calc_function(coeff_list, x, prime_number):
-    result = 0
-    for coefficient in coeff_list:
-        result = (result + (coefficient[0] * pow(x, coefficient[1])) % prime_number) % prime_number
-    return int((result % prime_number))
-
-
-def print_function(coefficients):
-    coefficients = list(reversed(coefficients))
-    summand = ""
-    for coefficient in coefficients:
-        if coefficient[0] == 0 and coefficient[1] == 0:
-            pass
-        elif coefficient[1] == 1:
-            summand += " + " + str(coefficient[0]) + "*x"
-        elif coefficient[1] == 0:
-            summand += " + " + str(coefficient[0])
-        else:
-            summand += " + " + str(coefficient[0]) + "*x^" + str(coefficient[1])
-    print(summand[3:])
-
-
+# checks if a number is prime
 def is_prime(number):
     if number < 2:
         return False
@@ -141,7 +104,7 @@ def is_prime(number):
     return True
 
 
-share(2, "paper_example", 71)
+share(22, "another_example", 71)
 # derivate_function([[3, 0], [27, 1], [16, 2], [18, 3], [7, 4]], 31)
 # print_function([[3, 0], [27, 1], [16, 2], [18, 3], [7, 4]])
 
