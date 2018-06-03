@@ -77,6 +77,7 @@ def share(message, setup, prime_number=31):
     # write Shares to 'shares.csv' and save it in the setups directory
     with open(os.path.join(datapath, setup, "shares.csv"), "w", newline='', encoding="utf8") as shares:
         writer = csv.writer(shares)
+        writer.writerow(["Chosen finite field size", prime_number])
         writer.writerow(["Shareholder", "Share"])
         writer.writerows(share_list.items())
         print("Shares are saved to folder 'DATA/" + setup + "/shares.csv'. Please don't edit the csv file manually.")
@@ -104,7 +105,7 @@ def is_prime(number):
     return True
 
 
-share(22, "another_example", 71)
+# share(22, "another_example", 71)
 # derivate_function([[3, 0], [27, 1], [16, 2], [18, 3], [7, 4]], 31)
 # print_function([[3, 0], [27, 1], [16, 2], [18, 3], [7, 4]])
 
