@@ -20,7 +20,7 @@ def delete_setup(name):
             shutil.rmtree(filepath)
             print("Setup deleted.")
         except PermissionError as e:
-            print("Can't delete setup. Please check Error: " + str(e))
+            print("Can't delete setup. Please check Error: {}".format(e))
     else:
         print("Name does not exist.")
 
@@ -39,14 +39,14 @@ def setup(name, lvl_list, conjunctive=True):
     filepath = os.path.join(cwd, "DATA", name)
     # check if name already exists, return with info printed when yes
     if os.path.exists(filepath):
-        print("Name \"" + name + "\" already exists. Please choose another.")
+        print("Name \"{}\" already exists. Please choose another.".format(name))
         return
     # more troubleshooting with input parameters
     for level in lvl_list:
         if len(level) != 2:
-            print("Wrong number of Arguments in lvl_list: list of level with length " + str(len(level)), end=''
+            print("Wrong number of Arguments in lvl_list: list of level with length {}"
                   " found. lvl_list must be of Format [[num_level_1,"
-                  "threshold_level_1],[num_level_2, threshold_level_2],...]")
+                  "threshold_level_1],[num_level_2, threshold_level_2],...]".format(len(level)))
             return
         for element in level:
             if not isinstance(element, int):
@@ -65,13 +65,15 @@ def setup(name, lvl_list, conjunctive=True):
     with open(os.path.join(filepath, "info.csv"), 'w+', newline='', encoding='utf8') as file:
         writer = csv.writer(file, delimiter=',')
         metadata = [['Name', name], ['Created', created], ["Conjunctive?", conjunctive], ['']]
-                   # ["number of people", "threshold"]]
+        # ["number of people", "threshold"]]
         writer.writerows(metadata)
         # writer.writerows(lvl_list)
     setup_stats(lvl_list, name)
-    print("Setup \"" + name + "\" successfully created!")
+    print("Setup \"{}\" successfully created!".format(name))
 
 
+# write the level stats to a separate file
+# makes access for further work on setup easier (no offset for metadata)
 def setup_stats(stat_list, name):
     filepath = os.path.join(cwd, "DATA", name)
     with open(os.path.join(filepath, "level_stats.csv"), 'w+', newline='', encoding='utf8') as file:
@@ -101,10 +103,10 @@ def get_info(name):
             type_string = 'Disjunctive'
         lines = infofile.read().splitlines()
         # Print all level-Info:
-        print("Name: " + name + '\n' + "Type: " + type_string + '\n' + "Created: " + date)
+        print("Name: {} \n Type: {} \n Created: {}".format(name, type_string, date))
         print("Level structure is displayed as [num_people, threshold]:")
         for i in range(len(lines) - 2):
-            print("Level " + str(i) + " structure is: [" + str(lines[i + 2]) + "]")
+            print("Level {} structure is: [{}]".format(i, lines[i + 2]))
 
 
 # delete_setup("another_exxample")
