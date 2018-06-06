@@ -27,7 +27,7 @@ def share(message, setup, prime_number=31):
     try:
         data = pd.read_csv(filepath, skiprows=1, header=None, delimiter=',', )
     except FileNotFoundError as e:
-        print("Setup does not exist. " + str(e))
+        print("Setup does not exist. {}".format(e))
         return
     # create list of number of people in each level
     num = list(data.iloc[:, 0])
@@ -45,7 +45,7 @@ def share(message, setup, prime_number=31):
     # get the number of all shareholders
     # generate random coefficients for 0 < c <= prime
     coefficients = generate_function(degree_of_function, message, prime_number)
-    print("The randomly generated function is " + '\t', end='')
+    print("The randomly generated function is  \t", end='')
     print_function(coefficients)
     print("With this function we calculate shares for the following shareholders:")
     # dict of shareholders and their secrets
@@ -60,7 +60,7 @@ def share(message, setup, prime_number=31):
         while j > old_j:
             derivate_function(coefficients, prime_number)
             old_j += 1
-            print("The " + str(old_j) + ". derivative of the function is " + '\t', end='')
+            print("The " + str(old_j) + ". derivative of the function is \t", end='')
             print_function(coefficients)
         # calculate values and append to the share_list dict for each shareholder
         for person in range(1, int(number) + 1):
@@ -70,9 +70,9 @@ def share(message, setup, prime_number=31):
                 print("With this function we calculate shares for the following shareholders:")
             # calculate the value for the shareholder
             result = calc_function(coefficients, person, prime_number)
-            print("Shareholder " + shareholder + "'s share is " + str(result))
+            print("Shareholder {}'s share is {}".format(shareholder, result))
             share_list[shareholder] = result
-    print("New shares are: " + str(share_list))
+    print("New shares are: {}".format(share_list))
 
     # write Shares to 'shares.csv' and save it in the setups directory
     with open(os.path.join(datapath, setup, "shares.csv"), "w", newline='', encoding="utf8") as shares:
@@ -80,7 +80,7 @@ def share(message, setup, prime_number=31):
         writer.writerow(["Chosen finite field size", prime_number])
         writer.writerow(["Shareholder", "Share"])
         writer.writerows(share_list.items())
-        print("Shares are saved to folder 'DATA/" + setup + "/shares.csv'. Please don't edit the csv file manually.")
+        print("Shares are saved to folder 'DATA/{}/shares.csv'. Please don't edit the csv file manually.".format(setup))
 
 
 # generates coefficients for the function
