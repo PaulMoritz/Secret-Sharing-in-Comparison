@@ -1,6 +1,10 @@
 import numpy as np
 import math
 
+#
+# All Requirements taken from Traverso, G., Demirel, D, Buchmann, J: Dynamic and Verifiable Hierarchical Secret Sharing
+#
+
 
 # derivate the given function in place (modulo the prime)
 # for each pair of coefficients the normal derivation rules apply
@@ -52,10 +56,9 @@ def interpolation_matrix(coordinates):
     for coordinate in coordinates:
         interpolation_mat[int(coordinate[0])-1][int(coordinate[1])] = 1
     print("The interpolation matrix is \n {}".format(interpolation_mat))
-    return interpolation_mat,max_i, max_j
+    return interpolation_mat, max_i, max_j
 
 
-# TODO correct interpretation of req?
 # Requirement 1 from the Appendix (Theorem 3 in Paper)
 def requirement_1(matrix, highest_derivative, number_of_points):
     sum_over_matrix = 0
@@ -103,6 +106,7 @@ def supported_sequence(matrix):
     return False
 
 
+# check for a 1-sequence if it is supported (Definition 6)
 def check_supported(matrix, j, i):
     for row_num, row in enumerate(matrix):
         if not row_num == j:
@@ -119,4 +123,3 @@ def requirement_2(d, q, max_pers_num):
     if not float(q) > res:
         return False
     return True
-

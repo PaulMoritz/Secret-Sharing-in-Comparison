@@ -3,23 +3,31 @@ from tools import *
 import pandas as pd
 import random
 
+#
+# All Requirements taken from Traverso, G., Demirel, D, Buchmann, J: Dynamic and Verifiable Hierarchical Secret Sharing
+#
+
+
 # get path to DATA directory
 cwd = os.getcwd()
 datapath = os.path.join(cwd, "DATA")
 
 
-# reconstruct([["s1_2", 4], ["s3_2", 3]])
-# alternative formats: "s1,2" ; "1,2" ; "1_2"
+# reconstruct a secret with a given subset of people, only if
+# all thresholds are satisfied and
+# all requirements for a unique solution are given.
+# setup             String  the setup name to reconstruct the secret from
+# number_of people  Integer number of participating people in the subset, chosen randomly
 def reconstruct(setup, number_of_people):
     # read the list and extract shareholder information
     shares = []
-    person_ID = []
+    person_IDs = []
     functions_involved = []
     try:
         filepath = os.path.join(datapath, setup, 'shares.csv')
         data = pd.read_csv(filepath, skiprows=0, header=None, delimiter=',', )
         field_size = data[1][0]
-    except FileNotFoundError as e:
+    except FileNotFoundError:
         print("Shares for setup '{}' not yet created.".format(setup))
         return
     # read data of shareholders into tuples
@@ -35,15 +43,15 @@ def reconstruct(setup, number_of_people):
         functions_involved.append(name[1])
         shares.append(shareholder[1])
 
-        person_ID.append((name[0], name[1]))
-    print("Coordinates are {}".format(person_ID))
+        person_IDs.append((name[0], name[1]))
+    print("Coordinates are {}".format(person_IDs))
 
     phi = sorted(set(functions_involved))
     print("Share value column for interpolation is {}".format(shares))
     print("Vector phi of function x^i with i printed is {}".format(phi))
-    matrix, max_person_number, highest_derivative = interpolation_matrix(person_ID)
+    matrix, max_person_number, highest_derivative = interpolation_matrix(person_IDs)
     print("\nChecking thresholds:")
-    if not thresholds_fulfilled(setup, person_ID):
+    if not thresholds_fulfilled(setup, person_IDs):
         return
     if requirement_1(matrix, highest_derivative, len(share_list)):
         print("Requirement 1 'Unique Solution' is satisfied.")
@@ -64,8 +72,9 @@ def reconstruct(setup, number_of_people):
     print("\nAll requirements for a unique solution are given, starting interpolation...")
 
 
-#
-def thresholds_fulfilled(setup, person_ID):
+# check for each given threshold from the setup if it is satisfied by the subset of shareholders
+# return True if all thresholds stand, else return False
+def thresholds_fulfilled(setup, person_IDs):
     filepath = os.path.join(datapath, setup, 'level_stats.csv')
     thresholds = []
     count_of_persons = 0
@@ -75,7 +84,7 @@ def thresholds_fulfilled(setup, person_ID):
     except FileNotFoundError as e:
         print(e)
     for number_of_level, item in enumerate(thresholds):
-        for person in person_ID:
+        for person in person_IDs:
             if int(person[1]) == number_of_level:
                 count_of_persons += 1
         if count_of_persons < int(item):
@@ -87,5 +96,4 @@ def thresholds_fulfilled(setup, person_ID):
     return True
 
 
-reconstruct("another_example1", 4)
-#thresholds_fulfilled("another_example1", [])
+# reconstruct("another_example1", 4)
