@@ -1,8 +1,7 @@
 import os
-import numpy as np
 import pandas as pd
 import csv
-from tools import *
+from function_tools import *
 
 #
 # TODO: delete testcases, delete unnecessary prints
@@ -11,6 +10,9 @@ from tools import *
 # get path to DATA directory
 cwd = os.getcwd()
 datapath = os.path.join(cwd, "DATA")
+
+# seed for testing only! unsafe otherwise
+# np.random.seed(4)
 
 
 # creates shares for all Shareholders in one setup
@@ -31,7 +33,7 @@ def share(message, setup, prime_number=31):
         return
     # create list of number of people in each level
     num = list(data.iloc[:, 0])
-    # print("Read people from levels: " + str(num))
+    print("Read people from levels: " + str(num))
     # create list of thresholds
     thresholds = list(data.iloc[:, 1])
     # print("Read thresholds " + str(thresholds))
@@ -64,8 +66,7 @@ def share(message, setup, prime_number=31):
             print_function(coefficients)
         # calculate values and append to the share_list dict for each shareholder
         for person in range(1, int(number) + 1):
-            shareholder = ("s_{}_{}".format(person, level))
-            # print(level)
+            shareholder = ("s_{}_{}".format(person, number - 2))
             if person == 1:
                 print("With this function we calculate shares for the following shareholders:")
             # calculate the value for the shareholder
@@ -75,37 +76,18 @@ def share(message, setup, prime_number=31):
     print("New shares are: {}".format(share_list))
 
     # write Shares to 'shares.csv' and save it in the setups directory
-    with open(os.path.join(datapath, setup, "shares.csv"), "w", newline='', encoding="utf8") as shares:
-        writer = csv.writer(shares)
-        writer.writerow(["Chosen finite field size", prime_number])
-        writer.writerow(["Shareholder", "Share"])
-        writer.writerows(share_list.items())
-        print("Shares are saved to folder 'DATA/{}/shares.csv'. Please don't edit the csv file manually.".format(setup))
+    try:
+        with open(os.path.join(datapath, setup, "shares.csv"), "w", newline='', encoding="utf8") as shares:
+            writer = csv.writer(shares)
+            writer.writerow(["Chosen finite field size", prime_number])
+            writer.writerow(["Shareholder", "Share"])
+            writer.writerows(share_list.items())
+            print("Shares are saved to folder 'DATA/{}/shares.csv'. Please don't edit the csv file manually.".format(setup))
+    except PermissionError as e:
+        print("Can't write to '{}', please close the file and try again. \n {}".format(filepath, repr(e)))
 
 
-# generates coefficients for the function
-# Format: [[a_0, 0], [a_1, 1, [a_2, 2] ...] for f(x) = a_0 *x^0 + a_1 *x^1 + a_2 *x^2....
-# with a_0 = message
-def generate_function(in_degree, message, prime_number):
-    coefficients = [[message, 0]]
-    for i in range(1, in_degree + 1):
-        a_i = np.random.randint(1, prime_number)
-        coefficients.append([a_i, i])
-    # print("coefficients are: " + str(coefficients))
-    return coefficients
 
-
-# checks if a number is prime
-def is_prime(number):
-    if number < 2:
-        return False
-    for i in range(2, int(number ** 0.5) + 1):
-        if number % i == 0:
-            return False
-    return True
-
-
-# share(22, "another_example", 71)
+# share(42, "new_test_example_setup", 71)
 # derivate_function([[3, 0], [27, 1], [16, 2], [18, 3], [7, 4]], 31)
 # print_function([[3, 0], [27, 1], [16, 2], [18, 3], [7, 4]])
-

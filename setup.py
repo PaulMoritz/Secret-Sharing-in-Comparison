@@ -78,7 +78,7 @@ def setup_stats(stat_list, name):
     filepath = os.path.join(cwd, "DATA", name)
     with open(os.path.join(filepath, "level_stats.csv"), 'w+', newline='', encoding='utf8') as file:
         writer = csv.writer(file, delimiter=',')
-        writer.writerows([["Level", "Threshold"]])
+        writer.writerows([["People", "Threshold"]])
         writer.writerows(stat_list)
 
 
@@ -109,6 +109,6 @@ def get_info(name):
             print("Level {} structure is: [{}]".format(i, lines[i + 2]))
 
 
-# delete_setup("another_exxample")
-# setup("another_exxample", [[1, 1], [2, 2], [4, 4]], False)
+# delete_setup("new_example_setup")
+# setup("new_test_example_setup", [[2, 1], [3, 2], [5, 4], [7, 6]], False)
 # get_info("Big_Company")
