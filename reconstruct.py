@@ -3,14 +3,14 @@ from preconditions import *
 import numpy as np
 import pandas as pd
 import random
-import copy
 
 #
 # All Requirements taken from Traverso, G., Demirel, D, Buchmann, J: Dynamic and Verifiable Hierarchical Secret Sharing
 #
 
 # seed for testing only!
-# random.seed(532)
+# 2 for solution with given example     reconstruct("new_test_example_setup", 9)
+# random.seed(2)
 
 # get path to DATA directory
 cwd = os.getcwd()
@@ -38,7 +38,12 @@ def reconstruct(setup, number_of_people):
     tuples = [tuple(x) for x in data.values[2:]]
     print("All given shareholders: {}".format(tuples))
     # select a random sample of given shareholders
-    share_list = random.sample(tuples, number_of_people)
+    try:
+        share_list = random.sample(tuples, number_of_people)
+    except ValueError:
+        print(">>> reconstruct({}, {}): More people chosen than existing, please use at most {} people"
+              .format(setup, number_of_people, len(tuples)))
+        return
     print("Subset of {} shareholders randomly selected is {}.".format(number_of_people, share_list))
     for i, shareholder in enumerate(share_list):
         name = shareholder[0].split('_')
@@ -56,7 +61,7 @@ def reconstruct(setup, number_of_people):
     matrix, max_person_number, highest_derivative = interpolation_matrix(person_IDs)
     # check preliminaries for the interpolation
     print("\nChecking thresholds:")
-    if not thresholds_fulfilled(setup, person_IDs):
+    if not thresholds_fulfilled(setup, person_IDs, number_of_people):
         return
     if requirement_1(matrix, highest_derivative, max_person_number):
         print("Requirement 1 'Unique Solution' is satisfied.")
@@ -113,7 +118,6 @@ def calculate_a_matrix(person_IDs, phi_functions, field_size):
         # print(x_value, derivative_value)
         for j, element in enumerate(row):
             while derivative_value > current_derivative[j]:
-                # print("deriv", j)
                 derivate_function([phi_functions[j]], field_size)
                 current_derivative[j] += 1
             # print("outer loop ", i, "inner ", j, phi_functions)
@@ -135,7 +139,7 @@ def get_matrices(matrix, column):
 
 
 # sort_coordinates([(1, 1), (2, 1), (1, 0), (1, 3), (4, 3), (2, 3)], [14, 46, 53, 65, 65, 65])
-# reconstruct("new_test_example_setup", 0)
+reconstruct("newer_test_example_setup", 25)
 # calculate_A_matrix([('1', '1'), ('1', '2'), ('2', '2'), ('4', '2')], [[1, 1], [1, 2]], 71)
 # get_matrices([['1', '1'], ['1', '2'], ['2', '2'], ['4', '2']], ['16', '55', '19', '39'])
 # print(inverse(37, 71))

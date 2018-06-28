@@ -22,7 +22,7 @@ def delete_setup(name):
         except PermissionError as e:
             print("Can't delete setup. Please check Error: {}".format(e))
     else:
-        print("Name does not exist.")
+        print("Name does not exist, no deletion possible.")
 
 
 # lists all created setups in the DATA directory
@@ -68,23 +68,35 @@ def setup(name, lvl_list, conjunctive=True):
         # ["number of people", "threshold"]]
         writer.writerows(metadata)
         # writer.writerows(lvl_list)
-    setup_stats(lvl_list, name)
-    print("Setup \"{}\" successfully created!".format(name))
+    if setup_stats(lvl_list, name):
+        print("Setup \"{}\" successfully created!".format(name))
+    else:
+        print("Because of that, ", end='')
+        delete_setup(name)
 
 
 # write the level stats to a separate file
 # makes access for further work on setup easier (no offset for metadata)
 def setup_stats(stat_list, name):
     filepath = os.path.join(cwd, "DATA", name)
+    thresholds = [x[1] for x in stat_list]
+    for i in range(len(thresholds) - 1):
+        if not thresholds[i] < thresholds[i + 1]:
+            print("Wrong setup for conjunctive structure: threshold for "
+                  "level i must always be bigger than threshold(level i-1). \n"
+                  "Here: thresholds[{}] = {} > {} = thresholds[{}]".format(i, thresholds[i], thresholds[i + 1], i + 1))
+            return False
     with open(os.path.join(filepath, "level_stats.csv"), 'w+', newline='', encoding='utf8') as file:
         writer = csv.writer(file, delimiter=',')
         writer.writerows([["People", "Threshold"]])
         writer.writerows(stat_list)
+        return True
 
 
 # print the info to a given setup
 def get_info(name):
     filepath = os.path.join(cwd, "DATA", name, 'info.csv')
+    statspath = os.path.join(cwd, "DATA", name, 'level_stats.csv')
     # check if setup exists
     if not os.path.exists(filepath):
         print("Setup does not exist.")
@@ -101,14 +113,16 @@ def get_info(name):
             type_string = 'Conjunctive'
         else:
             type_string = 'Disjunctive'
-        lines = infofile.read().splitlines()
+        with open(statspath, 'r') as stats_file:
+            lines = stats_file.read().splitlines()
+
         # Print all level-Info:
         print("Name: {} \n Type: {} \n Created: {}".format(name, type_string, date))
-        print("Level structure is displayed as [num_people, threshold]:")
-        for i in range(len(lines) - 2):
-            print("Level {} structure is: [{}]".format(i, lines[i + 2]))
+        print("Level structure is displayed as [number_of_people, threshold]:")
+        for i in range(len(lines) - 1):
+            print("Level {} structure is: [{}]".format(i, lines[i + 1]))
 
 
-# delete_setup("new_example_setup")
-# setup("new_test_example_setup", [[2, 1], [3, 2], [5, 4], [7, 6]], False)
-# get_info("Big_Company")
+# delete_setup("newer_test_example_setup")
+# setup("newer_test_example_setup", [[2, 1], [3, 2], [5, 4], [7, 6], [8, 9], [13, 11]], False)
+# get_info("newer_test_example_setup")

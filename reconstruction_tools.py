@@ -1,6 +1,7 @@
 import numpy as np
 from function_tools import print_function, derivate_function
 import copy
+import pprint
 
 
 # creates the interpolation matrix E
@@ -14,7 +15,7 @@ def interpolation_matrix(coordinates):
     for coordinate in coordinates:
         interpolation_mat[int(coordinate[0])-1][int(coordinate[1])] = 1
     print("The interpolation matrix is \n {}".format(interpolation_mat))
-    return interpolation_mat, max_i, max_j
+    return interpolation_mat, max_i, max_j - 1
 
 
 # calculate the inverse element of a number in the finite field of size field_size
@@ -41,6 +42,7 @@ def gauss_jordan(A, b, field_size):
     # concatenate A and b to a single matrix, to simplify the calculation
     A = concat(A, b)
     A = [list(reversed(x)) for x in set(tuple(x) for x in A)]
+    pprint.pprint(A)
     # list of already used lines (only use each equation once)
     used = []
     # print(A)
@@ -53,39 +55,41 @@ def gauss_jordan(A, b, field_size):
             if j >= len(equation) - 1:
                 break
             if equation[j] != 0 and equation_index not in used:
-                # print("TRUE")
+                print("TRUE")
                 # swap lines if the equation with element != 0 is not at the top (of not yet used equations)
                 if equation is not A[j]:
                     try:
                         A = swap(A, equation, A[j])
-                        # print("Not yet divided ", equation)
+                        print("Not yet divided ", equation)
                     except ValueError as e:
                         print("Error in swap, unknown Value: {}".format(repr(e)))
                         return
-                # print("A is ", A)
-                # print(equation)
+                print("A is ", A)
+                print(equation)
                 divisor = equation[j]
                 # divide the equation by the j'th element, to get a '1' at equation[j]
                 # division as done in a finite field!
                 for element_index, element in enumerate(equation):
                     equation[element_index] = divide(element, divisor, field_size)
-                    # print("DIVIDED {} / {} = {}".format(element, divisor, equation[element_index]))
+                    print("DIVIDED {} / {} = {}".format(element, divisor, equation[element_index]))
                 used.append(j)
-                # print("Used lines ", used)
+                print("Used lines ", used)
                 # for each other equation with equation[j] != 0 subtract the elements of the given equation
                 # just as in the algorithm
                 for index, other_equation in enumerate(A):
                     if other_equation[j] != 0 and other_equation is not equation:
                         substitute = other_equation[j]
-                        # print(substitute)
+                        print(substitute)
+                        print(other_equation)
                         for k, element in enumerate(other_equation):
-                            # tmp = A[index][k]
+                            tmp = A[index][k]
                             A[index][k] = (A[index][k] - substitute * equation[k]) % field_size
-                            # print("j {} Line {}, {} - {} * {} is {}"
-                            # .format(k, other_equation, tmp, substitute, equation[k], A[index][k]))
+                            print("j {} Line {}, {} - {} * {} is {}"
+                            .format(k, other_equation, tmp, substitute, equation[k], A[index][k]))
                 # break
+    pprint.pprint(A)
     # print the resulting function and return the calculated matrix
-    coefficients = [[x[-1], i] for i, x in enumerate(A)]
+    coefficients = [[x[-1], i] for i, x in enumerate(A[:len(equation) - 1])]
     print("The interpolated function is \t", end='')
     print_function(coefficients)
     return A
@@ -117,7 +121,7 @@ def concat(A, b):
                 mat[i][j] = b[i]
             else:
                 mat[i][j] = A[i][j-1]
-
+    print(mat)
     return mat
 
 
@@ -128,7 +132,7 @@ def calculate_matrix(field_size, highest_derivative, person_IDs, phi):
     print("Calculating matrix A")
     current_function = []
     all_functions = []
-    for i in range(phi[-1] + 1):
+    for i in range(phi[-1]):
         current_function.append([1, i])
     current_function.reverse()
     all_functions.append(current_function)
@@ -137,7 +141,7 @@ def calculate_matrix(field_size, highest_derivative, person_IDs, phi):
         tmp_function = copy.deepcopy(tmp_function)
         all_functions.append(derivate_function(tmp_function, int(field_size)))
     # create matrix A
-    A = np.zeros((len(person_IDs), phi[-1] + 1))
+    A = np.zeros((len(person_IDs), phi[-1]))
     for index, pair in enumerate(person_IDs):
         current_function = all_functions[pair[1]]
         factors = []

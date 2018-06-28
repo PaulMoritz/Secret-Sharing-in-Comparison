@@ -29,19 +29,21 @@ def share(message, setup, prime_number=31):
     try:
         data = pd.read_csv(filepath, skiprows=1, header=None, delimiter=',', )
     except FileNotFoundError as e:
-        print("Setup does not exist. {}".format(e))
+        print("Setup or level statistics doy not exist: {}".format(repr(e)))
         return
     # create list of number of people in each level
     num = list(data.iloc[:, 0])
     print("Read people from levels: " + str(num))
     # create list of thresholds
     thresholds = list(data.iloc[:, 1])
-    # print("Read thresholds " + str(thresholds))
-    highest_threshold = max(thresholds)
-    if not highest_threshold == thresholds[-1]:
-        print("Wrong setup for conjunctive structure: threshold for "
-              "level i must always be bigger than threshold(level i-1).")
-        return
+    print("Read thresholds " + str(thresholds))
+    highest_threshold = thresholds[-1]
+    for i in range(len(thresholds) - 1):
+        if not thresholds[i] < thresholds[i + 1]:
+            print("Wrong setup for conjunctive structure: threshold for "
+                  "level i must always be bigger than threshold(level i-1). \n"
+                  "Here: thresholds[{}] = {} > {} = thresholds[{}]".format(i, thresholds[i], thresholds[i + 1], i + 1))
+            return
     degree_of_function = int(highest_threshold) - 1
     # calc number of levels
     # get the number of all shareholders
@@ -82,12 +84,12 @@ def share(message, setup, prime_number=31):
             writer.writerow(["Chosen finite field size", prime_number])
             writer.writerow(["Shareholder", "Share"])
             writer.writerows(share_list.items())
-            print("Shares are saved to folder 'DATA/{}/shares.csv'. Please don't edit the csv file manually.".format(setup))
+            print("Shares are saved to folder 'DATA/{}/shares.csv'."
+                  "Please don't edit the csv file manually.".format(setup))
     except PermissionError as e:
         print("Can't write to '{}', please close the file and try again. \n {}".format(filepath, repr(e)))
 
 
-
-# share(42, "new_test_example_setup", 71)
+share(1, "newer_test_example_setup", 71)
 # derivate_function([[3, 0], [27, 1], [16, 2], [18, 3], [7, 4]], 31)
 # print_function([[3, 0], [27, 1], [16, 2], [18, 3], [7, 4]])

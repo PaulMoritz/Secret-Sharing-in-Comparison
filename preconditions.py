@@ -64,11 +64,11 @@ def check_supported(matrix, j, i):
     return False
 
 
+# TODO: correct the formula
 # Requirement 2 from the Appendix (Theorem 4)
 def requirement_2(d, q, max_pers_num):
-    print(d, q, max_pers_num)
     res = 2**(- d + 2) * (d - 1)**((d - 1)/2) * math.factorial(d - 1) * max_pers_num**(((d - 1)*(d - 2))/2)
-    print(res)
+    print("Results for debugging req 2: d = {}, q = {}, x_k = {}, result = {}".format(d, q, max_pers_num, res))
     if not float(q) > res:
         return False
     return True
@@ -76,7 +76,7 @@ def requirement_2(d, q, max_pers_num):
 
 # checks for each given threshold from the setup if it is satisfied by the subset of shareholders
 # returns True if all thresholds stand, else returns False
-def thresholds_fulfilled(setup, person_IDs):
+def thresholds_fulfilled(setup, person_IDs, people):
     filepath = os.path.join(datapath, setup, 'level_stats.csv')
     thresholds = []
     count_of_persons = 0
@@ -85,7 +85,10 @@ def thresholds_fulfilled(setup, person_IDs):
         thresholds = data[1].values
     except FileNotFoundError as e:
         print(repr(e))
-    # TODO correct? Because we dont have people in a level without setting a threshold
+    # TODO correct? Because we do not have people in a level without setting a threshold
+    if thresholds[-1] > people:
+        print("Please reconstruct with more people, {} people can't satisfy the largest threshold '{}'.".format(people, thresholds[-1]))
+        return
     # For each threshold check if enough people are available
     for number_of_level, item in enumerate(thresholds):
         for person in person_IDs:
