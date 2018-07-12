@@ -109,6 +109,6 @@ def get_info(name):
             print("Level {} structure is: [{}]".format(i, lines[i + 2]))
 
 
-# delete_setup("new_example_setup")
-# setup("new_test_example_setup", [[2, 1], [3, 2], [5, 4], [7, 6]], False)
+# delete_setup("paper_example")
+setup("another_big_example", [[1, 1], [4, 2], [3, 3], [6, 7], [8, 9], [11, 17]], True)
 # get_info("Big_Company")
