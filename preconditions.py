@@ -66,9 +66,9 @@ def check_supported(matrix, j, i):
 
 # Requirement 2 from the Appendix (Theorem 4)
 def requirement_2(d, q, max_pers_num):
-    print(d, q, max_pers_num)
+    # print(d, q, max_pers_num)
     res = 2**(- d + 2) * (d - 1)**((d - 1)/2) * math.factorial(d - 1) * max_pers_num**(((d - 1)*(d - 2))/2)
-    print(res)
+    # print(res)
     if not float(q) > res:
         return False
     return True
@@ -87,14 +87,18 @@ def thresholds_fulfilled(setup, person_IDs):
         print(repr(e))
     # TODO correct? Because we dont have people in a level without setting a threshold
     # For each threshold check if enough people are available
-    for number_of_level, item in enumerate(thresholds):
+    th = list(thresholds)
+    th.insert(0, 0)
+    for number_of_level, item in enumerate(th):
+        if number_of_level == len(th) -1:
+            break
         for person in person_IDs:
-            if int(person[1]) == int(item) - 1:
+            if int(person[1]) == int(item):
                 count_of_persons += 1
-        if count_of_persons < int(item):
+        if count_of_persons < th[number_of_level + 1]:
             print("Threshold {} not fulfilled, the subset contains only {} people up to this level."
                   "(Should be at least {})".format(number_of_level, count_of_persons, item))
             return False
         else:
-            print("Threshold {} fulfilled.".format(number_of_level))
+            print("Threshold t_{} fulfilled.".format(number_of_level + 1))
     return True
