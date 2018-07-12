@@ -1,16 +1,16 @@
 from reconstruction_tools import *
 from preconditions import *
-import numpy as np
+from share_tools import read_level_stats
+from function_tools import print_function
 import pandas as pd
 import random
-import copy
 
 #
 # All Requirements taken from Traverso, G., Demirel, D, Buchmann, J: Dynamic and Verifiable Hierarchical Secret Sharing
 #
 
 # seed for testing only!
-# random.seed(532)
+# random.seed(3211)  # 3311
 
 # get path to DATA directory
 cwd = os.getcwd()
@@ -27,35 +27,46 @@ def reconstruct(setup, number_of_people):
     shares = []
     person_IDs = []
     functions_involved = []
+    threshold_path = os.path.join(datapath, setup, 'level_stats.csv')
+    filepath = os.path.join(datapath, setup, 'shares.csv')
     try:
-        filepath = os.path.join(datapath, setup, 'shares.csv')
         data = pd.read_csv(filepath, skiprows=0, header=None, delimiter=',', )
         field_size = int(data[1][0])
     except FileNotFoundError:
         print("Shares for setup '{}' not yet created.".format(setup))
         return
+    try:
+        _, thresholds = read_level_stats(threshold_path)
+    except FileNotFoundError as e:
+        print("Setup does not exist. {}".format(e))
+        return
     # read data of shareholders into tuples
     tuples = [tuple(x) for x in data.values[2:]]
     print("All given shareholders: {}".format(tuples))
     # select a random sample of given shareholders
-    share_list = random.sample(tuples, number_of_people)
+    try:
+        share_list = random.sample(tuples, number_of_people)
+    except ValueError as e:
+        print("More people chosen ({}) than existing, please choose at most {} shareholders: {}"
+              .format(number_of_people, len(tuples), repr(e)))
+        return
     print("Subset of {} shareholders randomly selected is {}.".format(number_of_people, share_list))
     for i, shareholder in enumerate(share_list):
         name = shareholder[0].split('_')
         name = name[1:]
-        functions_involved.append(int(name[1]))
         shares.append(int(shareholder[1]))
-
         person_IDs.append((int(name[0]), int(name[1])))
     person_IDs,  shares = sort_coordinates(person_IDs, shares)
     print("Coordinates (in lexicographic order) are {}".format(person_IDs))
-
-    phi = sorted(set(functions_involved))
+    # read all involved functions (phi)
+    for i in range(thresholds[-1]):
+        functions_involved.append(i)
+    phi = functions_involved
     print("Share value column for interpolation (in lexicographic order) is {}".format(shares))
     print("Vector phi of function x^i (with i printed) is {}".format(phi))
     matrix, max_person_number, highest_derivative = interpolation_matrix(person_IDs)
     # check preliminaries for the interpolation
-    print("\nChecking thresholds:")
+    print("\nChecking thresholds and requirements:")
     if not thresholds_fulfilled(setup, person_IDs):
         return
     if requirement_1(matrix, highest_derivative, max_person_number):
@@ -79,63 +90,33 @@ def reconstruct(setup, number_of_people):
     '''
 
     print("\nAll requirements for a unique solution are given, starting interpolation...")
-
-    '''
-    a_matrix = calculate_a_matrix(person_IDs, phi_functions, int(field_size))
-    print("Calculated matrix A(E, X, phi) =\n {}".format(a_matrix))
-    
+    # A = calculate_matrix(field_size, highest_derivative, person_IDs, phi)
+    # create a matrix with the linear equations to solve
+    A = create_matrix(person_IDs, shares, field_size, phi, highest_derivative)
+    print("\nResulting matrix of linear equations is:", end='')
+    print_matrix(A)
     try:
-        det = np.linalg.det(a_matrix)
-        print("Determinant of A is {}".format(det))
-        matrices = get_matrices(a_matrix, shares)
-        print(len(matrices))
-        determinants = [np.linalg.det(matrices[i]) for i in range(len(matrices))]
-        print(determinants)
-    
-        print("Can't calculate determinant of non-square matrix.")
-    '''
-
-    A = calculate_matrix(field_size, highest_derivative, person_IDs, phi)
-    resulting_matrix = gauss_jordan(A, shares, field_size)
-    print("Secret is {}".format(resulting_matrix[0][-1]))
-
-
-#######################################################################################
-# NOT USED ANYMORE
-def calculate_a_matrix(person_IDs, phi_functions, field_size):
-    print("PHI ", str(phi_functions))
-    a_matrix = np.zeros((len(person_IDs), len(phi_functions)))
-    current_derivative = [0]*len(phi_functions)
-    # print(a_matrix)
-    for i, row in enumerate(a_matrix):
-        x_value = int(person_IDs[i][0])
-        derivative_value = int(person_IDs[i][1])
-        # print(x_value, derivative_value)
-        for j, element in enumerate(row):
-            while derivative_value > current_derivative[j]:
-                # print("deriv", j)
-                derivate_function([phi_functions[j]], field_size)
-                current_derivative[j] += 1
-            # print("outer loop ", i, "inner ", j, phi_functions)
-            element = phi_functions[j][0] * (x_value ** phi_functions[j][1])
-            a_matrix[i][j] = element
-            # print(a_matrix)
-    return a_matrix
+        # solve the linear equations to get the coefficients
+        print("Using Gauss-Jordan elimination to get the coefficients of the function...")
+        resulting_matrix, coefficients = gauss_jordan(A, field_size)
+        print("Resulting matrix is:", end='')
+        print_matrix(A)
+    except ValueError as e:
+        print(e)
+        return
+    # sanity check, we might encounter a overdetermined system, check that all equations not worked on equal zero
+    sanity_coefficients = list(coefficients[len(A[0]):])
+    for c in sanity_coefficients:
+        if not c[0] == 0:
+            print("Error in Calculation, Gauss-Jordan elimination could not produce a correct result")
+            return
+    # print the final function and the secret
+    final_coefficients = list(coefficients[:len(A[0])])
+    print("Reading coefficients from interpolated function from the matrix...")
+    print("The interpolated function is \t", end='')
+    print_function(final_coefficients)
+    print("The secret is {}".format(final_coefficients[0][0]))
+    print("\nReconstruction finished.")
 
 
-# calculate the matrices with the column vector replacing the i'th column
-def get_matrices(matrix, column):
-    matrices = {}
-    for i in range(len(matrix[0])):
-        tmp_matrix = [row[:] for row in matrix]
-        for j, row in enumerate(tmp_matrix):
-            tmp_matrix[j][i] = column[j]
-        matrices[i] = tmp_matrix
-    return matrices
-
-
-# sort_coordinates([(1, 1), (2, 1), (1, 0), (1, 3), (4, 3), (2, 3)], [14, 46, 53, 65, 65, 65])
-# reconstruct("new_test_example_setup", 0)
-# calculate_A_matrix([('1', '1'), ('1', '2'), ('2', '2'), ('4', '2')], [[1, 1], [1, 2]], 71)
-# get_matrices([['1', '1'], ['1', '2'], ['2', '2'], ['4', '2']], ['16', '55', '19', '39'])
-# print(inverse(37, 71))
+reconstruct("another_big_example", 23)
