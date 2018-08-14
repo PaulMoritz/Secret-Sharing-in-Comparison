@@ -20,7 +20,7 @@ def derivate_function(function_to_derivate, prime_number):
 def calc_function(coeff_list, x, prime_number):
     result = 0
     for coefficient in coeff_list:
-        result = (result + (coefficient[0] * pow(x, coefficient[1])) % prime_number) % prime_number
+        result = (result + (int(coefficient[0]) * pow(x, int(coefficient[1]))) % prime_number) % prime_number
     return int((result % prime_number))
 
 

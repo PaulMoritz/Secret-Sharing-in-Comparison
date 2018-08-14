@@ -76,7 +76,7 @@ def requirement_2(d, q, max_pers_num):
 
 # checks for each given threshold from the setup if it is satisfied by the subset of shareholders
 # returns True if all thresholds stand, else returns False
-def thresholds_fulfilled(setup, person_IDs):
+def thresholds_fulfilled(setup, person_IDs, print_statements):
     filepath = os.path.join(datapath, setup, 'level_stats.csv')
     thresholds = []
     count_of_persons = 0
@@ -96,9 +96,11 @@ def thresholds_fulfilled(setup, person_IDs):
             if int(person[1]) == int(item):
                 count_of_persons += 1
         if count_of_persons < th[number_of_level + 1]:
-            print("Threshold {} not fulfilled, the subset contains only {} people up to this level."
-                  "(Should be at least {})".format(number_of_level, count_of_persons, item))
+            if print_statements:
+                print("Threshold {} not fulfilled, the subset contains only {} people up to this level."
+                      "(Should be at least {})".format(number_of_level, count_of_persons, item))
             return False
         else:
-            print("Threshold t_{} fulfilled.".format(number_of_level + 1))
+            if print_statements:
+                print("Threshold t_{} fulfilled.".format(number_of_level + 1))
     return True

@@ -17,8 +17,16 @@ def interpolation_matrix(coordinates):
     # set entry to '1' if person is involved in reconstruction
     for coordinate in coordinates:
         interpolation_mat[int(coordinate[0])-1][int(coordinate[1])] = 1
-    print("The interpolation matrix is \n {}".format(interpolation_mat))
     return interpolation_mat, max_i, max_j
+
+
+# input: dict
+# e.g: read_subset({"s_0_0": 13, "s_1_0": 11})
+def read_subset(subset):
+    list_of_shareholders = []
+    for shareholder, share in subset.items():
+        list_of_shareholders.append((shareholder, share))
+    return list_of_shareholders
 
 
 # calculate the inverse element of a number in the finite field of size field_size
@@ -179,7 +187,7 @@ def print_matrix(matrix):
             if len(str(elem)) < maximum:
                 for i in range(len(str(elem)), maximum):
                     print(' ', end='')
-            print('', elem, end='')
+            print('', int(elem), end='')
         print()
     print()
 
@@ -190,7 +198,10 @@ def print_matrix(matrix):
 # returns           matrix A, each line in A is a equation to solve where the result of the equation is the share value
 def create_matrix(person_IDs, shares, field_size, phi, highest_derivative):
     degree_of_function = phi[-1]
-    derivatives = calc_derivative_vector(phi, highest_derivative, field_size)
+    current_function = []
+    for number in phi:
+        current_function.append([1, number])
+    derivatives = calc_derivative_vector(current_function, highest_derivative, field_size)
     # create matrix A
     A = np.zeros((len(person_IDs), degree_of_function + 1))
     for i_index, (person_number, level) in enumerate(person_IDs):
@@ -210,15 +221,11 @@ def create_matrix(person_IDs, shares, field_size, phi, highest_derivative):
 # param field_size             field size for calculation
 # returns all_functions
 # all_functions[i] holds the i'th derivative of the function
-def calc_derivative_vector(phi, highest_derivative, field_size):
-    all_functions = []
-    current_function = []
-    for j in range(highest_derivative + 1):
-        if j == 0:
-            for number in phi:
-                current_function.append([1, number])
-        else:
-            tmp_fct = copy.deepcopy(current_function)
-            current_function = derivate_function(tmp_fct, field_size)
+def calc_derivative_vector(current_function, highest_derivative, field_size):
+    all_functions = [current_function]
+    for _ in range(highest_derivative):
+        tmp_fct = copy.deepcopy(current_function)
+        current_function = derivate_function(tmp_fct, field_size)
         all_functions.append(current_function)
     return all_functions
+

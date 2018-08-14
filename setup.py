@@ -109,6 +109,7 @@ def get_info(name):
             print("Level {} structure is: [{}]".format(i, lines[i + 2]))
 
 
-# delete_setup("paper_example")
-setup("another_big_example", [[1, 1], [4, 2], [3, 3], [6, 7], [8, 9], [11, 17]], True)
+# delete_setup("Big_Company")
+# setup("Big_Company", [[1,0],[3,2],[7,4],[9,10]], True)
+# setup("test_for_reconstruction", [[2, 1], [4, 3], [3, 4], [6, 7], [8, 7], [11, 10]], True)
 # get_info("Big_Company")

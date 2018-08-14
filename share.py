@@ -15,8 +15,7 @@ cwd = os.getcwd()
 datapath = os.path.join(cwd, "DATA")
 
 # seed for testing only! unsafe otherwise
-# np.random.seed(531)
-# 4 for problem
+np.random.seed(531)
 
 
 # creates shares for all Shareholders in one setup
@@ -85,5 +84,4 @@ def share(message, setup, prime_number=31):
         print("Can't write to '{}', maybe close the file and try again. \n {}".format(filepath, repr(e)))
 
 
-share(42, "another_big_example", 71)  # 71 for problems
-
+# share(17, "Big_Company", 71)
