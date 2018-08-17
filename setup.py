@@ -3,10 +3,6 @@ import shutil
 import time
 import csv
 
-#
-# TODO: delete testcases
-#
-
 # path to DATA directory
 cwd = os.getcwd()
 datapath = os.path.join(cwd, "DATA")
@@ -107,9 +103,3 @@ def get_info(name):
         print("Level structure is displayed as [num_people, threshold]:")
         for i in range(len(lines) - 2):
             print("Level {} structure is: [{}]".format(i, lines[i + 2]))
-
-
-# delete_setup("Big_Company")
-# setup("Big_Company", [[1,0],[3,2],[7,4],[9,10]], True)
-# setup("test_for_reconstruction", [[2, 1], [4, 3], [3, 4], [6, 7], [8, 7], [11, 10]], True)
-# get_info("Big_Company")
