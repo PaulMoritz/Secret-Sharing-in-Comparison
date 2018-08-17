@@ -55,7 +55,7 @@ prints all info about the setup
 - name (string): info of the named setup is displayed
 
   
-**Example calls:**  
+**Example Calls:**  
 
 `setup("Big_Company", [[1,0],[3,2],[7,4],[9,10]], True)`  
 `delete_setup("Big_Company")`
@@ -74,7 +74,7 @@ Note that the setup needs to be created first.
   
   
 
-**Example Call:**  
+**Example Calls:**  
 
 `share(42, "Big_Company", 71)`
 
@@ -97,9 +97,33 @@ reconstructs the secret and the whole generated equation from [Share](#share) us
 - print_statements(Boolean),  _Default Value_ = `True`: Determines if all taken steps are printed to the console. Used internally to disable the print while calling `reconstruct` in `reset`, to check if subset is authorized.  
 > _All errors or unexpected behaviours that lead to an early termination are printed to the screen anyhow!_ 
 
-**Example Call:**  
+**Example Calls:**  
 
-`reconstruct("Big_Company", 17)`  
+`reconstruct("Big_Company", number_of_people=17)`  
 `reconstruct("Big_Company", random_subset=False, subset={'s_1_0': 23, 's_9_4': 10, 's_3_0': 29, 's_2_2': 40, 's_6_2': 40, 's_8_4': 37, 's_1_2': 70, 's_6_4': 32, 's_4_4': 22, 's_2_4': 61, 's_5_4': 49, 's_4_2': 5, 's_7_4': 44, 's_7_2': 12, 's_3_4': 15, 's_2_0': 67, 's_1_4': 65}
 )
+`
+
+---
+
+### Renew
+
+Use [renew.py](./renew.py) to renew the shares of a given set of Shareholders. The Shareholders must be able to retrieve the result from the original setup.  
+
+`renew(setup, old_shares)`  
+renews the shares of the `old_shares` and saves new share values that can also reconstruct the secret message.
+- setup (String): The name of the setup we want to work on
+- old_shares (Dict of _(Shareholder, Share)_ pairs): the subset of old shares (Authorized on the setup) for which we want to renew the share values  
+> *INFO: For convenience a shortcut was added, if you use the parameter* `old_shares={'shares': 'all'}` *, it will automatically take **all** shareholders from the setup as old shareholders and renew their values (similar to a reset but with the same general structure remaining)*
+  
+  
+
+**Example Calls:**  
+
+`renew("Big_Company", old_shares={'s_1_0': 23, 's_3_0': 29, 's_1_2': 70, 's_2_2': 40, 
+        's_3_2': 64, 's_4_2': 5, 's_5_2': 5, 's_7_2': 12, 's_1_4': 65, 's_2_4': 61, 
+        's_4_4': 22, 's_8_4': 37, 's_9_4': 10})
+`  
+
+`renew("Big_Company", old_shares={'shares': 'all'})
 `
