@@ -1,21 +1,10 @@
 import os
-import csv
 from function_tools import *
 from share_tools import *
-
-#
-# TODO: delete testcases, delete unnecessary prints
-#
-
-# highest prime in range 32 bit:
-highest_prime = 2147483647
 
 # get path to DATA directory
 cwd = os.getcwd()
 datapath = os.path.join(cwd, "DATA")
-
-# seed for testing only! unsafe otherwise
-np.random.seed(531)
 
 
 # creates shares for all Shareholders in one setup
@@ -73,15 +62,8 @@ def share(message, setup, prime_number=31):
 
     # write Shares to 'shares.csv' and save it in the setups directory
     try:
-        with open(os.path.join(datapath, setup, "shares.csv"), "w", newline='', encoding="utf8") as shares:
-            writer = csv.writer(shares)
-            writer.writerow(["Chosen finite field size", prime_number])
-            writer.writerow(["Shareholder", "Share"])
-            writer.writerows(share_list.items())
-            print("Shares are saved to folder 'DATA/{}/shares.csv'. Please don't edit the csv file manually."
-                  .format(setup))
+        write_shares(prime_number, os.path.join(datapath, setup, "shares.csv"), share_list)
+        print("Shares are saved to folder 'DATA/{}/shares.csv'. Please don't edit the csv file manually."
+              .format(setup))
     except PermissionError as e:
         print("Can't write to '{}', maybe close the file and try again. \n {}".format(filepath, repr(e)))
-
-
-# share(17, "Big_Company", 71)
