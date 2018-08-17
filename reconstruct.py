@@ -8,9 +8,6 @@ import random
 # All Requirements taken from Traverso, G., Demirel, D, Buchmann, J: Dynamic and Verifiable Hierarchical Secret Sharing
 #
 
-# seed for testing only!
-random.seed(42)  # 3311
-
 # get path to DATA directory
 cwd = os.getcwd()
 datapath = os.path.join(cwd, "DATA")
@@ -64,8 +61,15 @@ def reconstruct(setup, number_of_people=0, random_subset=True, subset=empty_dict
     for i, shareholder in enumerate(share_list):
         name = shareholder[0].split('_')
         name = name[1:]
-        shares.append(int(shareholder[1]))
-        person_IDs.append((int(name[0]), int(name[1])))
+        try:
+            shares.append(int(shareholder[1]))
+            person_IDs.append((int(name[0]), int(name[1])))
+        except ValueError as e:
+            print("Wrong format of shareholders given, should be 's_i_j' for ID (i,j)\n{}".format(repr(e)))
+            return
+        except IndexError as e:
+            print("Wrong format of shareholders given, should be 's_i_j' for ID (i,j)\n{}".format(repr(e)))
+            return
     person_IDs,  shares = sort_coordinates(person_IDs, shares)
     if print_statements:
         print("Coordinates (in lexicographic order) are {}".format(person_IDs))
@@ -136,7 +140,3 @@ def reconstruct(setup, number_of_people=0, random_subset=True, subset=empty_dict
         print("The secret is {}".format(final_coefficients[0][0]))
         print("\nReconstruction finished.")
     return int(final_coefficients[0][0])
-
-
-# reconstruct("test_for_reconstruction", 23)
-# reconstruct("Big_Company", 17)
