@@ -43,9 +43,48 @@ returns True is given number is prime, False if not
 - number (Integer): number to be checked if it is prime
 - _returns_ `True` if number is prime, else returns `False`
 
+---
 
+### [`read_data_from_files.py`](./read_data_from_files.py)
+
+`read_data(setup)`  
+reads the date from a given setup and returns it  
+- setup (String): the setup to read the data from
+- _returns_ data (Pandas.DataFrame): contains the data of all shareholders and their according share values  
+- _returns_ levels, thresholds (Lists): Two lists with the persons_per_level/threshold structure for each level (thresholds starts with a leading `0` representing `t_-1`)
 
 ---
+
+### [`reset_tools.py`](./reset_tools.py)  
+
+`create_new_shares(number_of_shares, number_of_levels)`  
+ creates new shares for the reset randomly
+ - number_of_shares(Integer): number of shares to be created  
+ - number_of_levels (Integer): maximal number of levels in which the shares are to be created
+ >**NOTE** currently not used due to the problems with reset
+
+
+`shareholders_valid(data, shares)`  
+check if all given shareholders also exist in the given data  
+- data (Pandas.DataFrame): contains the data of all shareholders and their according share values 
+- shares (list ofshareholder/share pairs): the Shareholders to verify
+- _returns_ `True` if all shares are valid, `False` otherwise
+
+`level_structure_to_id(structure)`  
+makes a list of all shareholders by a given level structure
+- structure(list of lists): The level structure; just as in [setup](./ReadMe.md#setup)
+- _returns_ this list and the maximum degree of the functions used later (biggest threshold -1)
+
+`def get_all_shares_from_setup(setup)`  
+get **all** shareholder/share pairs from a given setup  
+- setup (String): the setup to get all shareholders from
+- _returns_ a dictionary of the pairs
+
+
+`
+
+---
+
 ### [`share_tools.py`](./share_tools.py)
 
 `read_level_stats(filepath)`  
