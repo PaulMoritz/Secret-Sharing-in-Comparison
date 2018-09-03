@@ -17,9 +17,9 @@ def derivate_function(function_to_derivate, prime_number):
 
 
 # calculate the y- values for each shareholder with their given x
-def calc_function(coeff_list, x, prime_number):
+def calc_function(function_structure, x, prime_number):
     result = 0
-    for coefficient in coeff_list:
+    for coefficient in function_structure:
         result = (result + (int(coefficient[0]) * pow(x, int(coefficient[1]))) % prime_number) % prime_number
     return int((result % prime_number))
 
@@ -79,4 +79,3 @@ def is_prime(number):
         if number % i == 0:
             return False
     return True
-
