@@ -51,21 +51,25 @@ if __name__ == "__main__":
     SETUP_DEFAULT = "_"
     VALID_SETUP = [SETUP_DELETE, SETUP_LIST, SETUP_GET]
 
+    # catch case of to few arguments given
     if arguments is None or len(arguments) < 3:
         sys.stderr.write("Please specify a mode and at least the setup name. ")
         sys.stderr.write("For example: python main.py setup ExampleName [[1,1],[3,2],[4,4]]")
         sys.exit(1)
 
+    # save current mode
     mode = arguments[1]
 
     if mode not in VALID_MODES:
-        sys.stderr.write("Please select a mode which is one of %s" % VALID_MODES)
+        sys.stderr.write("Please select a mode which is one of {}, currently mode is {}".format(VALID_MODES, mode))
         sys.exit(1)
 
     print("Running in mode '%s'" % mode)
 
+    # case of 'setup'
     if mode == MODE_SETUP:
         if len(arguments) is 3:
+            # only list_setups() needs no additional parameters, check if it shall be called
             if arguments[2] == SETUP_LIST:
                 print("Calling list_setups():\n")
                 list_setups()
@@ -76,6 +80,7 @@ if __name__ == "__main__":
         elif len(arguments) is 4:
             setup_name = arguments[2]
             setup_function = str(arguments[3])
+            # choose correct call from the given arguments, print the called method with all used parameters
             if setup_function == SETUP_DELETE:
                 print("Calling setup_delete({}):\n".format(setup_name))
                 delete_setup(setup_name)
@@ -85,8 +90,10 @@ if __name__ == "__main__":
             elif setup_function == SETUP_GET:
                 print("Calling get_info({}):\n".format(setup_name))
                 get_info(setup_name)
+            # else case is creating a new setup
             else:
                 try:
+                    # convert string of a list to list
                     structure = ast.literal_eval(arguments[3])
                     print("Calling setup({},{}):\n".format(setup_name, structure))
                     setup(setup_name, structure)
@@ -98,38 +105,52 @@ if __name__ == "__main__":
             print("Wrong number of arguments ({}) in {}".format(len(arguments), MODE_SETUP))
             sys.exit(1)
 
+    # case of 'share'
     elif mode == MODE_SHARE:
+        # check for correct number of arguments
         if not (len(arguments) is 3 or len(arguments) is 4):
             print("Wrong number of arguments ({}) in {}".format(len(arguments), MODE_SHARE))
             sys.exit(1)
+        # default value
         prime_number = 31
         setup_name = arguments[2]
         secret_message = int(arguments[3])
+        # set prime number only if given (default possible)
         if len(arguments) is 5:
             prime_number = int(arguments[4])
         print("Calling share({}, {}, prime_number={}):\n".format(setup_name, secret_message, prime_number))
         share(setup_name, secret_message, prime_number)
 
+    # case 'reconstruct':
     elif mode == MODE_RECONSTRUCT:
         setup_name = arguments[2]
+        # decision between random and given subset, here: random, only number of people needed
         if len(arguments) is 4:
             number_of_random_people = int(arguments[3])
             print("Calling reconstruct({}, number_of_people={}, random_subset=True, subset={{}}):\n"
                   .format(setup_name, number_of_random_people))
             reconstruct(setup_name, number_of_people=number_of_random_people)
+        # specific subset case, the 4. argument needs to be 'False' to be handled correctly
         elif len(arguments) is 5:
             random_subset = arguments[3]
             print(random_subset)
             random_subset = str2bool(random_subset)
-            assert random_subset is False
+            # error handling
+            assert (random_subset is False), "If a specific subset is chosen, 'False' needs to be set, for example\n" \
+                                             "python main.py reconstruct CMD_test False" \
+                                             "{'s_1_0':'6','s_1_1':'14','s_2_1':'7','s_3_1':'10','s_1_2':'19'}"
+            # convert string of list to list
             subset = ast.literal_eval(arguments[4])
             print("Calling reconstruct({}, number_of_people=0, random_subset=False, subset={}):\n"
                   .format(setup_name, subset))
             reconstruct(setup_name, random_subset=random_subset, subset=subset)
         else:
+            # check for correct number of arguments
             print("Wrong number of arguments ({}) in {}:\n{}".format(len(arguments), MODE_RECONSTRUCT, arguments))
 
+    # case 'renew'
     elif mode == MODE_RENEW:
+        # check for correct number of arguments
         if not len(arguments) is 4:
             print("Wrong number of arguments ({}) in {}, format should be\n"
                   "['main.py', 'renew', 'setup_name', 'old_shares'] but is\n{}"
