@@ -2,7 +2,7 @@ import os
 import shutil
 import time
 import csv
-from main import str2bool
+import os.path
 
 #
 # TODO: Only conjunctive secret sharing implemented
@@ -10,15 +10,16 @@ from main import str2bool
 
 # path to DATA directory
 cwd = os.getcwd()
-datapath = os.path.join(cwd, "DATA")
+main_directory = os.path.abspath(os.path.join(cwd, os.pardir))
+data_path = os.path.join(main_directory, "DATA")
 
 
 # deletes the folder and all its files if a directory with the given name exists
 def delete_setup(name):
-    filepath = os.path.join(cwd, "DATA", name)
-    if os.path.exists(filepath):
+    file_path = os.path.join(main_directory, "DATA", name)
+    if os.path.exists(file_path):
         try:
-            shutil.rmtree(filepath)
+            shutil.rmtree(file_path)
             print("Setup deleted.")
         except PermissionError as e:
             print("Can't delete setup. Please check Error: {}".format(e))
@@ -29,7 +30,7 @@ def delete_setup(name):
 # lists all created setups in the DATA directory
 def list_setups():
     print("Current setups are:")
-    for subdir, dirs, files in os.walk(datapath):
+    for subdir, dirs, files in os.walk(data_path):
         for directory in dirs:
             print(directory)
 
@@ -37,7 +38,7 @@ def list_setups():
 # builds a new setup with all given parameters and
 # creates a directory in the DATA-path with an info file
 def setup(name, lvl_list, conjunctive=True):
-    filepath = os.path.join(cwd, "DATA", name)
+    filepath = os.path.join(main_directory, "DATA", name)
     # check if name already exists, return with info printed when yes
     if os.path.exists(filepath):
         print("Name \"{}\" already exists. Please choose another.".format(name))
@@ -76,7 +77,7 @@ def setup(name, lvl_list, conjunctive=True):
 # write the level stats to a separate file
 # makes access for further work on setup easier (no offset for metadata)
 def setup_stats(stat_list, name):
-    filepath = os.path.join(cwd, "DATA", name)
+    filepath = os.path.join(main_directory, "DATA", name)
     with open(os.path.join(filepath, "level_stats.csv"), 'w+', newline='', encoding='utf8') as file:
         writer = csv.writer(file, delimiter=',')
         writer.writerows([["People", "Threshold"]])
@@ -85,8 +86,8 @@ def setup_stats(stat_list, name):
 
 # print the info to a given setup
 def get_info(name):
-    filepath = os.path.join(cwd, "DATA", name, 'info.csv')
-    path_to_level_stats = os.path.join(cwd, "DATA", name, 'level_stats.csv')
+    filepath = os.path.join(main_directory, "DATA", name, 'info.csv')
+    path_to_level_stats = os.path.join(main_directory, "DATA", name, 'level_stats.csv')
     # check if setup exists
     if not os.path.exists(filepath):
         print("Setup does not exist.")
@@ -112,10 +113,7 @@ def get_info(name):
                 print("Level {} structure is: [{}]".format(i, lines[i]))
 
 
-# delete_setup("Big_Company")
-# setup("Big_Company", [[1,0],[3,2],[7,4],[9,10]], True)
-# setup("test_for_reconstruction", [[2, 1], [4, 3], [3, 4], [6, 7], [8, 7], [11, 10]], True)
-# get_info("Big_Company")
-# setup("Small_Company", [[1,1],[3,2],[4,4]], True)
-# setup("Debug_Test", [[1,1],[1,2],[1,3]])
-
+# check if given String is either "True", "true" or 1/"1"
+# return True if so, else False
+def str2bool(string_representation):
+    return str(string_representation.lower()) in ("true", "1")
