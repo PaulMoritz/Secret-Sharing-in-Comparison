@@ -1,18 +1,19 @@
 import numpy as np
-from function_tools import derivate_function
+from function_tools import derive_function
 import copy
-import pprint
 
 
 # creates the interpolation matrix E
 # efficiently, this is just for visualization and the check if requirement 1 is satisfied
 def interpolation_matrix(coordinates):
+    # save maximum numbers of each i and j for further processing
     max_i = 0
     max_j = 0
-    # save maximum numbers of each i and j for further processing
     for coordinate in coordinates:
+        # check for maximum seen number
         max_i = max(max_i, int(coordinate[0]))
         max_j = max(max_j, int(coordinate[1]))
+    # initialise E as matrix of zeros
     interpolation_mat = np.zeros((max_i, max_j + 1))
     # set entry to '1' if person is involved in reconstruction
     for coordinate in coordinates:
@@ -20,8 +21,10 @@ def interpolation_matrix(coordinates):
     return interpolation_mat, max_i, max_j
 
 
+# converts a dict to a list
 # input: dict
 # e.g: read_subset({"s_0_0": 13, "s_1_0": 11})
+# returns a list [[sh, s],...] of the shareholder:share pairs
 def read_subset(subset):
     list_of_shareholders = []
     for shareholder, share in subset.items():
@@ -47,7 +50,7 @@ def divide(a, b, field_size):
 
 
 # Gauss Jordan algorithm implemented in a finite field
-# follows the principle as stated in wikipedia
+# follows the principle as stated in the english wikipedia
 # param A           matrix to solve (last entry in each row (equation) is the share value)
 # param field_size  size of the field we're working with (for modulo operations)
 def gauss_jordan(A, field_size):
@@ -109,6 +112,7 @@ def swap(A, one_line, other_line):
     for i, line in enumerate(A):
         if line is not one_line and line is not other_line:
             new_A.append(line)
+        # swap in the following two cases
         elif line is one_line:
             new_A.append(other_line)
         elif line is other_line:
@@ -124,6 +128,7 @@ def concat(A, b):
     mat = np.zeros((len(A), len(A[0])+1), dtype=int)
     for i, line in enumerate(mat):
         for j, _ in enumerate(line):
+            # append the vector b in the last column of the new matrix
             if j == len(line)-1:
                 mat[i][j] = b[i]
             else:
@@ -136,13 +141,20 @@ def concat(A, b):
 # returns return_matrix     resulting upper triangular matrix
 def make_triangular_matrix(matrix):
     row_length = len(matrix[0])
+    # array of already correctly positioned rows
     right_position = [False] * len(matrix)
+    # resulting matrix
     return_matrix = []
     for i in range(row_length):
         for row_index, row in enumerate(matrix):
+            # row is already in the right position but not yet marked in the list
+            # (nonzero value in the currently viewed column -> one optimal choice for an upper triangular matrix)
             if not row[i] == 0 and not right_position[row_index]:
+                # set row as correctly positioned
                 right_position[row_index] = True
+                # put row in the next row of the resulting matrix
                 return_matrix.append(list(row))
+    # append all remaining rows
     for i, element in enumerate(right_position):
         if element is False:
             return_matrix.append(matrix[i])
@@ -155,7 +167,7 @@ def sort_coordinates(coords, shares):
         for j in range(i + 1, len(coords)):
             # if the order is not as stated, switch
             if coords[i][0] > coords[j][0] or (coords[i][0] == coords[j][0] and coords[i][1] >= coords[j][1]):
-                # print("switching i: {} >  j: {}". format(coords[i], coords[j]))
+                # switch procedure (for each ID and share to keep the connection)
                 tmp = coords[j]
                 coords[j] = coords[i]
                 coords[i] = tmp
@@ -176,6 +188,7 @@ def not_equal(other_equation, one_equation):
 
 # just a function to print a matrix row-wise
 def print_matrix(matrix):
+    # get the maximum number of digits in any number, for better printing only
     maximum = 0
     for line in matrix:
         for element in line:
@@ -185,8 +198,10 @@ def print_matrix(matrix):
     for line in matrix:
         for elem in line:
             if len(str(elem)) < maximum:
+                # insert spaces to get all numbers the same space on screen
                 for i in range(len(str(elem)), maximum):
                     print(' ', end='')
+            # print number
             print('', int(elem), end='')
         print()
     print()
@@ -198,18 +213,23 @@ def print_matrix(matrix):
 # returns           matrix A, each line in A is a equation to solve where the result of the equation is the share value
 def create_matrix(person_IDs, shares, field_size, phi, highest_derivative):
     degree_of_function = phi[-1]
+    # list of coefficients of the currently used function
     current_function = []
+    # create the function by adding 1*x^number until phi is matched
     for number in phi:
         current_function.append([1, number])
+    # calculate and store all needed derivatives
     derivatives = calc_derivative_vector(current_function, highest_derivative, field_size)
     # create matrix A
     A = np.zeros((len(person_IDs), degree_of_function + 1))
+    # fill matrix with the calculated values for each shareholder and function
     for i_index, (person_number, level) in enumerate(person_IDs):
         for j_index in range(degree_of_function + 1):
             current_summand = derivatives[level][j_index]
             A[i_index][j_index] = (current_summand[0] * person_number ** current_summand[1]) % field_size
     # concatenate A and b to a single matrix, to simplify the calculation
     A = concat(A, shares)
+    # get an upper triangular form to make the algorithm more efficient
     A = make_triangular_matrix(A)
     return A
 
@@ -223,9 +243,12 @@ def create_matrix(person_IDs, shares, field_size, phi, highest_derivative):
 # all_functions[i] holds the i'th derivative of the function
 def calc_derivative_vector(current_function, highest_derivative, field_size):
     all_functions = [current_function]
+    # append all derivatives to the list of all functions
     for _ in range(highest_derivative):
+        # copy to not override the function each time
         tmp_fct = copy.deepcopy(current_function)
-        current_function = derivate_function(tmp_fct, field_size)
+        # derive the copy
+        current_function = derive_function(tmp_fct, field_size)
+        # append to all functions
         all_functions.append(current_function)
     return all_functions
-

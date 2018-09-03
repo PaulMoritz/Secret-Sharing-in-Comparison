@@ -9,11 +9,12 @@ import random
 #
 
 # seed for testing only!
-random.seed(42)  # 3311
+# random.seed(42)
 
-# get path to DATA directory
+# path to DATA directory
 cwd = os.getcwd()
-datapath = os.path.join(cwd, "DATA")
+main_directory = os.path.abspath(os.path.join(cwd, os.pardir))
+data_path = os.path.join(main_directory, "DATA")
 
 empty_dict = {}
 
@@ -30,7 +31,7 @@ def reconstruct(setup, number_of_people=0, random_subset=True, subset=empty_dict
               "while setting random_subset=False or set random_subset=True"
               "and provide a number_of_people you want to reconstruct the secret from.")
         return
-    # read the list and extract shareholder information
+    # create placeholders for a list of shares, of person IDs and functions
     shares = []
     person_IDs = []
     functions_involved = []
@@ -40,10 +41,11 @@ def reconstruct(setup, number_of_people=0, random_subset=True, subset=empty_dict
     except FileNotFoundError as e:
         print("Could not find file:\n{}".format(repr(e)))
         return
+    # get size of finite field
     field_size = int(data[1][0])
     # read data of shareholders into tuples
     tuples = [tuple(x) for x in data.values[2:]]
-    # select a random sample of given shareholders
+    # if chosen, select a random sample of given shareholders
     if random_subset:
         try:
             share_list = random.sample(tuples, number_of_people)
@@ -51,28 +53,34 @@ def reconstruct(setup, number_of_people=0, random_subset=True, subset=empty_dict
             print("More people chosen ({}) than existing, please choose at most {} shareholders: {}"
                   .format(number_of_people, len(tuples), repr(e)))
             return
+    # else use given subset
     else:
+        # catch case subset == {}
         if not subset:
             print("Please enter a valid Dictionary of (shareholder:share) pairs as subset\n"
                   'Example: subset={"s_0_0": 13, "s_1_0": 11}')
             return
+        # read dict of subset into a list of lists
         share_list = read_subset(subset)
         number_of_people = len(share_list)
     if print_statements:
         print("All given shareholders: {}".format(tuples))
         print("Subset of {} shareholders randomly selected is {}.".format(number_of_people, share_list))
+    # expand the lists of shares and person IDs
     for i, shareholder in enumerate(share_list):
         name = shareholder[0].split('_')
         name = name[1:]
         try:
             shares.append(int(shareholder[1]))
             person_IDs.append((int(name[0]), int(name[1])))
+        # handling errors
         except ValueError as e:
             print("Wrong format of shareholders given, should be 's_i_j' for ID (i,j)\n{}".format(repr(e)))
             return
         except IndexError as e:
             print("Wrong format of shareholders given, should be 's_i_j' for ID (i,j)\n{}".format(repr(e)))
             return
+    # sort person IDs and corresponding shares into lexicographic order
     person_IDs,  shares = sort_coordinates(person_IDs, shares)
     if print_statements:
         print("Coordinates (in lexicographic order) are {}".format(person_IDs))
@@ -83,6 +91,7 @@ def reconstruct(setup, number_of_people=0, random_subset=True, subset=empty_dict
     if print_statements:
         print("Share value column for interpolation (in lexicographic order) is {}".format(shares))
         print("Vector phi of function x^i (with i printed) is {}".format(phi))
+    # create an interpolation matrix E and read highest i and j for simplicity
     matrix, max_person_number, highest_derivative = interpolation_matrix(person_IDs)
     if print_statements:
         print("The interpolation matrix is \n {}".format(matrix))
@@ -102,7 +111,7 @@ def reconstruct(setup, number_of_people=0, random_subset=True, subset=empty_dict
         print("Requirement 1 'No supported 1-sequence of odd length' is satisfied.")
     if not requirement_2(highest_derivative, field_size, max_person_number):
         pass
-        # TODO figure x_k out for precondition 2
+        # TODO figure x_k out for precondition 2; FULFILLMENT OF REQUIREMENT 2 NOT IMPLEMENTED
         '''
         print("Requirement 2 'Unique solution over finite field of size {}'"
               "not satisfied with given subset.".format(field_size))
@@ -111,7 +120,6 @@ def reconstruct(setup, number_of_people=0, random_subset=True, subset=empty_dict
     elif print_statements:
         print("Requirement 2 'Unique solution over finite field of size {}' is satisfied.".format(field_size))
 
-    # A = calculate_matrix(field_size, highest_derivative, person_IDs, phi)
     # create a matrix with the linear equations to solve
     A = create_matrix(person_IDs, shares, field_size, phi, highest_derivative)
     if print_statements:
@@ -128,7 +136,7 @@ def reconstruct(setup, number_of_people=0, random_subset=True, subset=empty_dict
     except ValueError as e:
         print(e)
         return
-    # sanity check, we might encounter a overdetermined system, check that all equations not worked on equal zero
+    # sanity check, we might encounter an overdetermined system, check that all equations not worked on equal zero
     sanity_coefficients = list(coefficients[len(A[0]):])
     for c in sanity_coefficients:
         if not c[0] == 0:
@@ -145,14 +153,3 @@ def reconstruct(setup, number_of_people=0, random_subset=True, subset=empty_dict
     else:
         reconstructed_function = print_function(final_coefficients, printed=False)
     return int(final_coefficients[0][0]), reconstructed_function
-
-
-# reconstruct("test_for_reconstruction", 23)
-# reconstruct("Big_Company", 17)
-# reconstruct("test_for_reconstruction", random_subset=False, subset={'s_1_0': 3, 's_2_0': 13, 's_1_1': 53, 's_2_1': 22, 's_3_1': 8, 's_4_1': 45, 's_1_3': 5, 's_2_3': 25, 's_3_3': 26, 's_1_4': 43, 's_2_4': 59, 's_3_4': 50, 's_4_4': 43, 's_5_4': 66, 's_6_4': 50, 's_7_4': 15, 's_8_4': 43, 's_9_4': 38, 's_10_4': 54, 's_11_4': 55, 's_12_4': 30, 's_13_4': 37, 's_1_7': 67, 's_2_7': 2, 's_3_7': 52, 's_4_7': 4, 's_5_7': 0, 's_6_7': 40, 's_7_7': 53, 's_8_7': 39, 's_9_7': 69, 's_10_7': 1, 's_11_7': 48})
-# reconstruct("Small_Company",random_subset=False,
-#            subset={'s_1_1': '3', 's_1_0': '38', 's_2_2': '37', 's_2_1': '2', 's_4_2': '1'})
-
-# reconstruct("Small_Company",random_subset=False,
-#            subset={'s_1_0': 31, 's_2_0': 30, 's_1_1': 15, 's_2_1': 13, 's_1_2': 2, 's_2_2': 41, 's_3_2': 33, 's_4_2': 25})
-
