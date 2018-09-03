@@ -38,9 +38,9 @@ def list_setups():
 # builds a new setup with all given parameters and
 # creates a directory in the DATA-path with an info file
 def setup(name, lvl_list, conjunctive=True):
-    filepath = os.path.join(main_directory, "DATA", name)
+    file_path = os.path.join(main_directory, "DATA", name)
     # check if name already exists, return with info printed when yes
-    if os.path.exists(filepath):
+    if os.path.exists(file_path):
         print("Name \"{}\" already exists. Please choose another.".format(name))
         return
     # more troubleshooting with input parameters
@@ -56,7 +56,7 @@ def setup(name, lvl_list, conjunctive=True):
                 return
     # create new directory to store the data in
     try:
-        os.mkdir(filepath)
+        os.mkdir(file_path)
     except OSError as e:
         print("Directory could not be created, please try again."
               "Be sure you don't use any of the following characters in the setup name: \ / : * ? < > |")
@@ -64,7 +64,7 @@ def setup(name, lvl_list, conjunctive=True):
         return
     created = str(time.strftime("%d.%m.%Y at %H:%M:%S"))
     # write data in csv format
-    with open(os.path.join(filepath, "info.csv"), 'w+', newline='', encoding='utf8') as file:
+    with open(os.path.join(file_path, "info.csv"), 'w+', newline='', encoding='utf8') as file:
         writer = csv.writer(file, delimiter=',')
         metadata = [['Name', name], ['Created', created], ["Conjunctive?", conjunctive], ['']]
         # ["number of people", "threshold"]]
@@ -77,8 +77,8 @@ def setup(name, lvl_list, conjunctive=True):
 # write the level stats to a separate file
 # makes access for further work on setup easier (no offset for metadata)
 def setup_stats(stat_list, name):
-    filepath = os.path.join(main_directory, "DATA", name)
-    with open(os.path.join(filepath, "level_stats.csv"), 'w+', newline='', encoding='utf8') as file:
+    file_path = os.path.join(main_directory, "DATA", name)
+    with open(os.path.join(file_path, "level_stats.csv"), 'w+', newline='', encoding='utf8') as file:
         writer = csv.writer(file, delimiter=',')
         writer.writerows([["People", "Threshold"]])
         writer.writerows(stat_list)
@@ -86,14 +86,14 @@ def setup_stats(stat_list, name):
 
 # print the info to a given setup
 def get_info(name):
-    filepath = os.path.join(main_directory, "DATA", name, 'info.csv')
+    file_path = os.path.join(main_directory, "DATA", name, 'info.csv')
     path_to_level_stats = os.path.join(main_directory, "DATA", name, 'level_stats.csv')
     # check if setup exists
-    if not os.path.exists(filepath):
+    if not os.path.exists(file_path):
         print("Setup does not exist.")
         return
-    with open(filepath, 'r') as infofile:
-        reader = csv.reader(infofile, delimiter=',')
+    with open(file_path, 'r') as info_file:
+        reader = csv.reader(info_file, delimiter=',')
         # get name
         name = next(reader)[1]
         # get creation date
