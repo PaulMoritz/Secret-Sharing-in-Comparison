@@ -91,9 +91,9 @@ reconstructs the secret and the whole generated equation from [Share](#share) us
 - number_of_people (positive Integer), _Default Value_ = `0`: Number of people involved in the reconstruction. 
 >*Please note that a random subset of the created shareholders is used, this might not lead into a solution of the problem as Birkhoff Interpolation is not always well posed.*
 - random_subset(Boolean), _Default Value_ = `True`: choose if the subset to reconstruct from is manually selected or a random subset (with _number_of_people_ many shareholders)  
-- subset(Dict of _(Shareholder: Share)_ pairs) eg. `subset={"s_0_0": 13, "s_1_0": 11}`, _Default Value_ = {}: if `random_subset` is set to `False` you can provide your own subset of shareholders in the given Dictionary structure.
+- subset(Dict of _(Shareholder: Share)_ pairs) eg. `subset={"s_1_0": 13, "s_2_0": 11}`, _Default Value_ = {}: if `random_subset` is set to `False` you can provide your own subset of shareholders in the given Dictionary structure.
 >*Please be careful to only use real shareholders while providing a subset as every shareholder is checked for existence and a correct share value internally.*  
-> *Also, make sure that each entered shareholder is of String with format _"s_i_j"_ where _i_ determines the number of the shareholder (also: x-value) and _j_ is the number of the level the person is in (Levels start from 0).* 
+> *Also, make sure that each entered shareholder is of String with format _"s_i_j"_ where _i_ determines the number of the shareholder (also: x-value; starting from 1) and _j_ is the number of the level the person is in (Levels start from 0).* 
 - print_statements(Boolean),  _Default Value_ = `True`: Determines if all taken steps are printed to the console. Used internally to disable the print while calling `reconstruct` in `reset`, to check if subset is authorized.  
 > _All errors or unexpected behaviours that lead to an early termination are printed to the screen anyhow!_ 
 
