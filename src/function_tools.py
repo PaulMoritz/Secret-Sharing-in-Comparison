@@ -1,19 +1,19 @@
 import numpy as np
 
 
-# derivate the given function in place (modulo the prime)
+# derive the given function in place (modulo the prime)
 # for each pair of coefficients the normal derivation rules apply
 # (factor = factor * exponent,
 #  exponent = exponent -1)
-def derivate_function(function_to_derivate, prime_number):
-    for level in function_to_derivate:
+def derive_function(function_to_derive, prime_number):
+    for level in function_to_derive:
         level[0] = (level[0] * level[1]) % prime_number
         # catch x^0, don't subtract exponent here
         if level[1] > 0:
             level[1] -= 1
         else:
             pass
-    return function_to_derivate
+    return function_to_derive
 
 
 # calculate the y- values for each shareholder with their given x
@@ -59,7 +59,7 @@ def print_function(coefficients, printed=True):
     return summand[3:]
 
 
-# generates coefficients for the function
+# generates coefficients for the function randomly
 # Format: [[a_0, 0], [a_1, 1], [a_2, 2] ...] for f(x) = a_0 *x^0 + a_1 *x^1 + a_2 *x^2....
 # with a_0 = message
 def generate_function(in_degree, message, prime_number):
