@@ -186,6 +186,15 @@ def not_equal(other_equation, one_equation):
     return False
 
 
+# check if two lines (lists) are identical
+# return True only if both lists are equal in each (integer) value
+def equal(line, other_line):
+    for index, pair in enumerate(line):
+        if not int(line[index]) == int(other_line[index]):
+            return False
+    return True
+
+
 # just a function to print a matrix row-wise
 def print_matrix(matrix):
     # get the maximum number of digits in any number, for better printing only

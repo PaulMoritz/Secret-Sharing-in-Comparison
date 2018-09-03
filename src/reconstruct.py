@@ -137,11 +137,14 @@ def reconstruct(setup, number_of_people=0, random_subset=True, subset=empty_dict
         print(e)
         return
     # sanity check, we might encounter an overdetermined system, check that all equations not worked on equal zero
-    sanity_coefficients = list(coefficients[len(A[0]):])
-    for c in sanity_coefficients:
+    # or alternatively are just a copy of the line holding the result; this way the result is also right
+    sanity_coefficients = list(coefficients[len(A[0]) - 1:])
+    for position, c in enumerate(sanity_coefficients):
         if not c[0] == 0:
-            print("Error in Calculation, Gauss-Jordan elimination could not produce a correct result")
-            return
+            # catch the second case from above (just a copied line)
+            if not equal(resulting_matrix[c[1]], resulting_matrix[len(A[0]) - 2]):
+                print("Error in Calculation, Gauss-Jordan elimination could not produce a correct result")
+                return
     # print the final function and the secret
     final_coefficients = list(coefficients[:len(A[0])])
     if print_statements:
