@@ -10,6 +10,7 @@ import os.path
 
 # path to DATA directory
 cwd = os.getcwd()
+# get the parent directory of the source files
 main_directory = os.path.abspath(os.path.join(cwd, os.pardir))
 data_path = os.path.join(main_directory, "DATA")
 
@@ -17,6 +18,7 @@ data_path = os.path.join(main_directory, "DATA")
 # deletes the folder and all its files if a directory with the given name exists
 def delete_setup(name):
     file_path = os.path.join(data_path, name)
+    # only if file exists
     if os.path.exists(file_path):
         try:
             shutil.rmtree(file_path)
@@ -43,7 +45,7 @@ def setup(name, lvl_list, conjunctive=True):
     if os.path.exists(file_path):
         print("Name \"{}\" already exists. Please choose another.".format(name))
         return
-    # more troubleshooting with input parameters
+    # troubleshooting with input parameters
     for level in lvl_list:
         if len(level) != 2:
             print("Wrong number of Arguments in lvl_list: list of level with length {}"
@@ -62,8 +64,9 @@ def setup(name, lvl_list, conjunctive=True):
               "Be sure you don't use any of the following characters in the setup name: \ / : * ? < > |")
         print(e)
         return
+    # get creation time
     created = str(time.strftime("%d.%m.%Y at %H:%M:%S"))
-    # write data in csv format
+    # write data in csv format and save as 'info.csv'
     with open(os.path.join(file_path, "info.csv"), 'w+', newline='', encoding='utf8') as file:
         writer = csv.writer(file, delimiter=',')
         metadata = [['Name', name], ['Created', created], ["Conjunctive?", conjunctive], ['']]
@@ -78,6 +81,7 @@ def setup(name, lvl_list, conjunctive=True):
 # makes access for further work on setup easier (no offset for metadata)
 def setup_stats(stat_list, name):
     file_path = os.path.join(data_path, name)
+    # save file as 'level_stats.csv'
     with open(os.path.join(file_path, "level_stats.csv"), 'w+', newline='', encoding='utf8') as file:
         writer = csv.writer(file, delimiter=',')
         writer.writerows([["People", "Threshold"]])
@@ -92,6 +96,7 @@ def get_info(name):
     if not os.path.exists(file_path):
         print("Setup does not exist.")
         return
+    # else case:
     with open(file_path, 'r') as info_file:
         reader = csv.reader(info_file, delimiter=',')
         # get name
@@ -100,13 +105,16 @@ def get_info(name):
         date = next(reader)[1]
         # get Con/Disjunctive
         conjunctive = next(reader)[1]
+        # check if 'True' is written in file,
+        # needs separate method because bool('False') evaluates to True
         if str2bool(conjunctive):
             type_string = 'Conjunctive'
         else:
             type_string = 'Disjunctive'
+        # get all info from the level stats file
         with open(path_to_level_stats, 'r') as stats_file:
             lines = stats_file.read().splitlines()
-            # Print all level-Info:
+            # Print all meta- & level-Info:
             print("Name: {}\nType: {}\nCreated: {}".format(name, type_string, date))
             print("Level structure is displayed as [number_of_people_in_level, threshold]:")
             for i in range(1, len(lines)):
