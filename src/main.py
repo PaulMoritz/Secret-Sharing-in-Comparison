@@ -2,7 +2,6 @@
 Main module that can be used to call functionality directly from the console.
 
 Examples:
-```
     # Setup
         new setup:
             python main.py setup CMD_test [[1,1],[3,2],[4,4]]
@@ -24,23 +23,16 @@ Examples:
 
     # Renew
         python main.py renew CMD_test {'s_1_0':'6','s_1_1':'14','s_2_1':'7','s_3_1':'10','s_1_2':'19'}
-```
 """
 import sys
 import ast
-from setup import *
+from setup import setup, get_info, delete_setup, list_setups, str2bool
 from share import share
 from reconstruct import reconstruct
 from renew import renew
 
 # save arguments from the console-input
 arguments = sys.argv
-
-
-# check if given String is either "True", "true" or 1/"1"
-# return True if so, else False
-def str2bool(string_representation):
-    return str(string_representation.lower()) in ("true", "1")
 
 
 # direct call of main.py executes the following code to set up and call the corresponding methods
@@ -60,8 +52,8 @@ if __name__ == "__main__":
     VALID_SETUP = [SETUP_DELETE, SETUP_LIST, SETUP_GET]
 
     if arguments is None or len(arguments) < 3:
-        sys.stderr.write("Please specify a mode and at least the setup name.")
-        sys.stderr.write("For example: python main.py train my_config.yaml")
+        sys.stderr.write("Please specify a mode and at least the setup name. ")
+        sys.stderr.write("For example: python main.py setup ExampleName [[1,1],[3,2],[4,4]]")
         sys.exit(1)
 
     mode = arguments[1]
