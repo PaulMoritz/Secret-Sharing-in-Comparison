@@ -16,7 +16,7 @@ data_path = os.path.join(main_directory, "DATA")
 
 # deletes the folder and all its files if a directory with the given name exists
 def delete_setup(name):
-    file_path = os.path.join(main_directory, "DATA", name)
+    file_path = os.path.join(data_path, name)
     if os.path.exists(file_path):
         try:
             shutil.rmtree(file_path)
@@ -38,7 +38,7 @@ def list_setups():
 # builds a new setup with all given parameters and
 # creates a directory in the DATA-path with an info file
 def setup(name, lvl_list, conjunctive=True):
-    file_path = os.path.join(main_directory, "DATA", name)
+    file_path = os.path.join(data_path, name)
     # check if name already exists, return with info printed when yes
     if os.path.exists(file_path):
         print("Name \"{}\" already exists. Please choose another.".format(name))
@@ -77,7 +77,7 @@ def setup(name, lvl_list, conjunctive=True):
 # write the level stats to a separate file
 # makes access for further work on setup easier (no offset for metadata)
 def setup_stats(stat_list, name):
-    file_path = os.path.join(main_directory, "DATA", name)
+    file_path = os.path.join(data_path, name)
     with open(os.path.join(file_path, "level_stats.csv"), 'w+', newline='', encoding='utf8') as file:
         writer = csv.writer(file, delimiter=',')
         writer.writerows([["People", "Threshold"]])
@@ -86,8 +86,8 @@ def setup_stats(stat_list, name):
 
 # print the info to a given setup
 def get_info(name):
-    file_path = os.path.join(main_directory, "DATA", name, 'info.csv')
-    path_to_level_stats = os.path.join(main_directory, "DATA", name, 'level_stats.csv')
+    file_path = os.path.join(data_path, name, 'info.csv')
+    path_to_level_stats = os.path.join(data_path, name, 'level_stats.csv')
     # check if setup exists
     if not os.path.exists(file_path):
         print("Setup does not exist.")
