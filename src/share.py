@@ -1,61 +1,62 @@
 import os
-from function_tools import *
+from function_tools import derive_function, generate_function, calc_function, print_function, is_prime
 from share_tools import *
 
-#
-# TODO: delete testcases, delete unnecessary prints
-#
 
-# highest prime in range 32 bit:
-highest_prime = 2147483647
-
-# get path to DATA directory
+# path to DATA directory
 cwd = os.getcwd()
-datapath = os.path.join(cwd, "DATA")
+main_directory = os.path.abspath(os.path.join(cwd, os.pardir))
+data_path = os.path.join(main_directory, "DATA")
 
 # seed for testing only! unsafe otherwise
-np.random.seed(531)
+# np.random.seed(531)
 
 
 # creates shares for all Shareholders in one setup
 # needs a message (Integer), a setup and an optional prime number for the finite field
 def share(setup, message, prime_number=31):
-    filepath = os.path.join(datapath, setup, 'level_stats.csv')
+    file_path = os.path.join(data_path, setup, 'level_stats.csv')
+    # make sure number is in finite field
+    message = message % prime_number
+    # check for prime as secret message
     if not is_prime(prime_number):
         print("Given prime_number is not a prime.")
         return
-    message = message % prime_number
+    # error handling (no integer given)
     if not isinstance(message, int):
         print("Secret needs to be an integer.")
         return
+    # if setup exists, read all needed data
     try:
-        list_of_people_per_level, thresholds = read_level_stats(filepath)
+        list_of_people_per_level, thresholds = read_level_stats(file_path)
     except FileNotFoundError as e:
         print("Setup does not exist. {}".format(e))
         return
+    # more error handling
     for i in range(len(thresholds) - 1):
         if not thresholds[i] <= thresholds[i + 1]:
             print("Wrong setup for conjunctive structure: threshold for "
                   "level i must always be bigger than threshold(level i-1).")
             return
+    # for conjunctive setup, get the maximum degree of the function to generate
     degree_of_function = thresholds[-1] - 1
-    # calc number of levels
-    # get the number of all shareholders
-    # generate random coefficients for 0 < c <= prime
+    # generate random coefficients c for 0 < c <= prime and a function of those
     coefficients = generate_function(degree_of_function, message, prime_number)
     print("The randomly generated function is  \t", end='')
     print_function(coefficients)
     print("With this function we calculate shares for the following shareholders:")
-    # dict of shareholders and their secrets
-    share_list = {}
-    old_j = 0
     # create a dict of shareholder:value pairs
+    share_list = {}
+    # needed to check if the function needs to be derived
+    old_j = 0
     for level, number in enumerate(list_of_people_per_level):
-        # we need to derivate only if we calculate values for a new level
+        # we need to derive only if we calculate values for a new level
         j = int(thresholds[level])
         print("Level " + str(old_j) + " shareholder's shares are: s_i_" + str(j))
         while j > old_j:
-            derivate_function(coefficients, prime_number)
+            # if threshold is bigger than current j, we need to derive n times
+            # to get the correct derivative to work with
+            derive_function(coefficients, prime_number)
             old_j += 1
             print("The " + str(old_j) + ". derivative of the function is \t", end='')
             print_function(coefficients)
@@ -68,16 +69,13 @@ def share(setup, message, prime_number=31):
             result = calc_function(coefficients, person, prime_number)
             print("Shareholder {}'s share is {}".format(shareholder, result))
             share_list[shareholder] = result
+    # print the dict to the screen
     print("New shares are: {}".format(share_list))
-
     # write Shares to 'shares.csv' and save it in the setups directory
     try:
-        write_shares(prime_number, os.path.join(datapath, setup, "shares.csv"), share_list)
+        write_shares(prime_number, os.path.join(data_path, setup, "shares.csv"), share_list)
         print("Shares are saved to folder 'DATA/{}/shares.csv'. Please don't edit the csv file manually."
               .format(setup))
+    # error handling
     except PermissionError as e:
-        print("Can't write to '{}', maybe close the file and try again. \n {}".format(filepath, repr(e)))
-
-
-# share(17, "Big_Company", 71)
-#share(42, "Small_Company", 47)
+        print("Can't write to '{}', maybe try to close the file and try again. \n {}".format(file_path, repr(e)))
