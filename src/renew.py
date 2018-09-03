@@ -7,9 +7,10 @@ from share_tools import write_shares
 import numpy as np
 import os.path as path
 
-# get path to DATA directory
+# path to DATA directory
 cwd = os.getcwd()
-datapath = os.path.join(cwd, "DATA")
+main_directory = os.path.abspath(os.path.join(cwd, os.pardir))
+data_path = os.path.join(main_directory, "DATA")
 
 
 # renew the share values for a given set of existing shareholders
@@ -27,14 +28,21 @@ def renew(setup, old_shares):
     number_of_old_shares = len(old_shares)
     degree_of_function = thresholds[-1] - 1
     # check if the old shares can reconstruct the correct secret and if all given shareholders actually exist
-    rec_result, rec_function = reconstruct(setup, number_of_old_shares,
-                                           random_subset=False, subset=old_shares, print_statements=False)
+    try:
+        rec_result, rec_function = reconstruct(setup, number_of_old_shares,
+                                               random_subset=False, subset=old_shares, print_statements=False)
+    except TypeError:
+        print("Could not reconstruct from old shares, thus no authorised subset is given.")
+        return
+    # convert dict of subset to list
     shares = read_subset(old_shares)
+    # troubleshooting
     if not isinstance(rec_result, int):
         print("Invalid subset of given shares.")
         return
     else:
         print("Old subset is authorized to reset the setup.")
+    # check if all shareholders actually exist
     if not shareholders_valid(data, shares):
         print("Invalid shareholder given, please try again with a correct input.")
         return
@@ -48,6 +56,7 @@ def renew(setup, old_shares):
     # start renew by creating random functions of degree thresholds[-1] - 1, with 0 as the free coefficient
     print("Creating random functions with degree {} and free coefficient 0 for old shareholders."
           .format(degree_of_function))
+    # new dict to store all shareholder: function pairs
     function_dict = {}
     for old_shareholder in old_shares:
         function_dict[old_shareholder] = generate_function(degree_of_function, 0, field_size)
@@ -84,17 +93,20 @@ def renew(setup, old_shares):
                 print("Error in accessing index of shareholder,"
                       "format should be 's_i_j' for ID (i,j)\n{}".format(repr(e)))
                 return
+    # calculate the sums of all column values in the matrix
     sums = np.sum(partial_shares, axis=0)
+    # make the results fit into the finite field
     for i, element in enumerate(sums):
         sums[i] = int(element) % field_size
     # This should never happen, just making sure
     assert (len(sums) == len(new_shares)), "Number of results and new shareholders do not match."
+    # save the newly calculated values in a new shareholder:share dict
     resulting_shares = {}
     for i in range(len(sums)):
         resulting_shares[new_shares[i]] = int(sums[i])
     # check if the new shares produce the same result in the reconstruction as the old ones
-    # if not, raise an error
     new_result, new_function = reconstruct(setup, random_subset=False, subset=resulting_shares, print_statements=False)
+    # if not, raise an error
     if not (new_result == rec_result):
         raise ValueError("New Shares don't produce the same result ({}) "
                          "as old shares ({}).".format(new_result, rec_result))
@@ -103,36 +115,23 @@ def renew(setup, old_shares):
         print("\nThe resulting new shares for the given structure are:")
         for share in resulting_shares:
             print("{} : {}".format(share, resulting_shares[share]))
-        print("Old shares reconstruct the following polynomial:\t\t\t\t {}\n"
+        print("Old shares reconstruct the following polynomial:\t\t\t {}\n"
               "New generated shares reconstruct the following polynomial:\t\t {}\n"
               "New Shares give the same result as old shares ({}), renewal successful."
               .format(rec_function, new_function, new_result))
         # create new .csv file to store the information
-        filepath = create_renew_file(field_size, resulting_shares, setup)
-        print("New Shares are saved to {}".format(filepath))
+        file_path = create_renew_file(field_size, resulting_shares, setup)
+        print("New Shares are saved to {}".format(file_path))
 
 
 # create a unique file saving the resulting share-values in the corresponding directory
 def create_renew_file(field_size, resulting_shares, setup):
     # create a new file of renewed values each time and give them a unique number
     number_of_reset = 0
-    while path.isfile(path.join(datapath, setup, 'shares_after_renew_{}.csv'.format(number_of_reset))):
+    # search the smallest possible number not yet used for a new file
+    while path.isfile(path.join(data_path, setup, 'shares_after_renew_{}.csv'.format(number_of_reset))):
         number_of_reset += 1
-    filepath = path.join(datapath, setup, 'shares_after_renew_{}.csv'.format(number_of_reset))
-    write_shares(field_size, filepath, resulting_shares)
-    return filepath
-
-
-# renew("Big_Company", old_shares={'shares': 'all'})
-
-# renew("Big_Company", old_shares={'s_1_0': 23, 's_3_0': 29, 's_1_2': 70, 's_2_2': 40, 's_3_2': 64, 's_4_2': 5,
-# 's_5_2': 5, 's_7_2': 12, 's_1_4': 65, 's_2_4': 61, 's_4_4': 22, 's_8_4': 37, 's_9_4': 10})
-'''
-renew("Small_Company", old_shares={'s_1_1': '3', 's_1_0': '38', 's_2_2': '37', 's_2_1': '2', 's_4_2': '1'})
-
-renew("test_for_reconstruction", old_shares={'s_1_0': '23', 's_11_7': '10', 's_1_1': '39', 's_8_7': '29',
-                                             's_3_1': '10', 's_3_7': '60', 's_2_0': '67', 's_1_3': '34', 's_1_4': '65',
-                                             's_10_7': '14', 's_3_3': '38', 's_4_4': '22', 's_6_4': '32', 's_1_7': '13',
-                                             's_3_4': '15', 's_6_7': '6', 's_4_7': '16', 's_7_7': '40', 's_2_4': '61',
-                                             's_5_7': '69', 's_2_3': '39', 's_5_4': '49', 's_2_7': '59'},)
-'''
+    # create this file
+    file_path = path.join(data_path, setup, 'shares_after_renew_{}.csv'.format(number_of_reset))
+    write_shares(field_size, file_path, resulting_shares)
+    return file_path
