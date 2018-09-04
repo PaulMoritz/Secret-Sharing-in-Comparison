@@ -1,5 +1,5 @@
 # HSS
-Hierarchical Secret Sharing
+Hierarchical Secret Sharing by Paul Moritz Ranly 
 
 > **NOTE** This project is inspired by [Dynamic and Verifiable Hierarchical Secret Sharing](https://eprint.iacr.org/2017/724.pdf)  
 > from Giulia Traverso, Denise Demirel, Johannes Buchmann and part of an internship for Giulia Traverso at TU Darmstadt.
@@ -11,7 +11,7 @@ Hierarchical Secret Sharing
 
 ## Requirements
 
-To use the framework, Python 3.6.x is required. All other required libraries are listed
+To use the framework, Python 3.6.x is recommended as I didn't test on other distributions. All other required libraries are listed
 in [requirements.txt](./requirements.txt).  
 To install requirements via pip just run  
 `pip install -r requirements.txt`  
@@ -30,7 +30,7 @@ If you want to reconstruct the message from a subset of shareholders, use [Recon
 
 ### Setup
 
-use [setup.py](./setup.py) to create a new setup for a scenario to test.
+use [setup.py](./src/setup.py) to create a new setup for a scenario to test.
 
 `setup(name, lvl_list, conjunctive):`  
 sets up a new scenario
@@ -58,12 +58,27 @@ prints all info about the setup
 **Example Calls:**  
 
 `setup("Big_Company", [[1,0],[3,2],[7,4],[9,10]], True)`  
-`delete_setup("Big_Company")`
+`delete_setup("Big_Company")`  
 
+
+
+> **Update**: Setup can also be called _directly from the console_ by calling
+>- For a new setup:  
+> `python main.py setup *setup_name* *setup_structure*`  
+>- To delete a setup:  
+> `python main.py setup *setup_name* delete`  
+>- To get setup information:  
+> `python main.py setup *setup_name* get`  
+>- To list all created setups:  
+> `python main.py setup (*setup_name*) list`  
+>
+> from the _src_ directory.
+>
+> You can find example calls in [main.py](./src/main.py)
 ---
 
 ### Share
-Use [share.py](./share.py) to generate a function and create shares for a given secret message.
+Use [share.py](./src/share.py) to generate a function and create shares for a given secret message.
 
 `share(message, setup, prime_number):`  
 creates shares for all Shareholders in one setup
@@ -76,14 +91,24 @@ Note that the setup needs to be created first.
 
 **Example Calls:**  
 
-`share(42, "Big_Company", 71)`
+`share(42, "Big_Company", 71)`  
+
+
+
+> **Update**: Share can also be called _directly from the console_ by calling
+>- `python main.py share *setup_name* *secret_message*`  
+>
+> from the _src_ directory.
+>
+> You can find example calls in [main.py](./src/main.py)
+
 
 
 ---
 
 ### Reconstruct
 
-Use [reconstruct.py](./reconstruct.py) to reconstruct the secret message from a subset of shareholders.
+Use [reconstruct.py](./src/reconstruct.py) to reconstruct the secret message from a subset of shareholders.
 
 `reconstruct(setup, number_of_people, random_subset=True, subset=[], print_statements=True)`  
 reconstructs the secret and the whole generated equation from [Share](#share) using a system of linear equations.
@@ -101,14 +126,25 @@ reconstructs the secret and the whole generated equation from [Share](#share) us
 
 `reconstruct("Big_Company", number_of_people=17)`  
 `reconstruct("Big_Company", random_subset=False, subset={'s_1_0': 23, 's_9_4': 10, 's_3_0': 29, 's_2_2': 40, 's_6_2': 40, 's_8_4': 37, 's_1_2': 70, 's_6_4': 32, 's_4_4': 22, 's_2_4': 61, 's_5_4': 49, 's_4_2': 5, 's_7_4': 44, 's_7_2': 12, 's_3_4': 15, 's_2_0': 67, 's_1_4': 65}
-)
+)  
 `
 
+
+> **Update**: Reconstruct can also be called _directly from the console_ by calling
+>- Reconstruct with random people:  
+> `python main.py reconstruct *setup_name* *number_of_people*`  
+>- Reconstruct with a specific subset:  
+> `python main.py reconstruct *setup_name* False *subset*`  
+>
+> from the _src_ directory.
+
+>
+> You can find example calls in [main.py](./src/main.py)
 ---
 
 ### Renew
 
-Use [renew.py](./renew.py) to renew the shares of a given set of Shareholders. The Shareholders must be able to retrieve the result from the original setup.  
+Use [renew.py](./src/renew.py) to renew the shares of a given set of Shareholders. The Shareholders must be able to retrieve the result from the original setup.  
 
 `renew(setup, old_shares)`  
 renews the shares of the `old_shares` and saves new share values that can also reconstruct the secret message.
@@ -125,5 +161,16 @@ renews the shares of the `old_shares` and saves new share values that can also r
         's_4_4': 22, 's_8_4': 37, 's_9_4': 10})
 `  
 
-`renew("Big_Company", old_shares={'shares': 'all'})
+`renew("Big_Company", old_shares={'shares': 'all'})  
 `
+
+
+
+> **Update**: Renew can also be called _directly from the console_ by calling 
+>- `python main.py renew *setup_name* *old_shares*`  
+>- To use _all_ old shares, it is important that `{'shares':'all'}` is written exactly like this (also the apostrophes) in the console so that it can be parsed correctly.
+>
+> from the _src_ directory.
+
+>
+> You can find example calls in [main.py](./src/main.py)
