@@ -170,8 +170,13 @@ if __name__ == "__main__":
         try:
             old_shares = ast.literal_eval(arguments[3])
         except ValueError:
-            print("old_shares can't be parsed, please make sure to provide "
+            print("Old_shares can't be parsed, please make sure to provide "
                   "a correct dictionary of shareholder:share pairs or the exact term {'shares':'all'}")
+            sys.exit(1)
+        except SyntaxError:
+            print("Old_shares can't be parsed, please make sure you use the exact term "
+                  "{'shares':'all'} for all shareholders, without 'old_shares=',"
+                  "or a correct dictionary of shareholder:share pairs")
             sys.exit(1)
         print("Calling renew('{}', {}):\n"
               .format(setup_name, old_shares))
