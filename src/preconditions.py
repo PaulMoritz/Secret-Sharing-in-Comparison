@@ -28,10 +28,11 @@ def requirement_1(matrix, highest_derivative, number_of_points):
 
 # check for a supported 1-sequence of odd length/ second part of the first requirement as stated in Theorem 3
 def supported_sequence(matrix):
+    max_sequence = 0
+    column = 0
     for i, row in enumerate(matrix):
         row_sequence_head = 0
         in_one_sequence = False
-        max_sequence = 0
         number_of_ones = 0
         head = 0
         for j, element in enumerate(row):
@@ -46,6 +47,8 @@ def supported_sequence(matrix):
                     if number_of_ones > max_sequence:
                         row_sequence_head = head
                         max_sequence = number_of_ones
+                        number_of_ones = 0
+                        column = i
             else:
                 # not (anymore) in sequence, if we were, set variables
                 if in_one_sequence:
@@ -53,11 +56,12 @@ def supported_sequence(matrix):
                     if number_of_ones > max_sequence:
                         row_sequence_head = head
                         max_sequence = number_of_ones
+                        column = i
                 number_of_ones = 0
         # after maximal sequence is found, check if it is of odd length, if yes, check if it supported
-        if max_sequence % 2:
-            if check_supported(matrix, j, row_sequence_head):
-                return True
+    if max_sequence % 2:
+        if check_supported(matrix, column, row_sequence_head):
+            return True
     return False
 
 
@@ -67,6 +71,7 @@ def check_supported(matrix, j, i):
     for row_num, row in enumerate(matrix):
         # check for south-west support
         if row_num < i:
+            print("why")
             for index, element in enumerate(row):
                 if index < j:
                     if element == 1:
