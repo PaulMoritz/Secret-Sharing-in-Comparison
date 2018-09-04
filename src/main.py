@@ -1,7 +1,7 @@
 """
 Main module that can be used to call functionality directly from the console.
 
-Examples:
+Examples (Not yet created):
     # Setup
         new setup:
             python main.py setup CMD_test [[1,1],[3,2],[4,4]]
@@ -47,9 +47,9 @@ if __name__ == "__main__":
     # additional modes for the different functionality in setup
     SETUP_DELETE = "delete"
     SETUP_LIST = "list"
-    SETUP_GET = "get"
+    SETUP_INFO = "info"
     SETUP_DEFAULT = "_"
-    VALID_SETUP = [SETUP_DELETE, SETUP_LIST, SETUP_GET]
+    VALID_SETUP = [SETUP_DELETE, SETUP_LIST, SETUP_INFO]
 
     # catch case of to few arguments given
     if arguments is None or len(arguments) < 3:
@@ -82,20 +82,20 @@ if __name__ == "__main__":
             setup_function = str(arguments[3])
             # choose correct call from the given arguments, print the called method with all used parameters
             if setup_function == SETUP_DELETE:
-                print("Calling setup_delete({}):\n".format(setup_name))
+                print("Calling setup_delete('{}'):\n".format(setup_name))
                 delete_setup(setup_name)
             elif setup_function == SETUP_LIST:
                 print("Calling list_setups():\n")
                 list_setups()
-            elif setup_function == SETUP_GET:
-                print("Calling get_info({}):\n".format(setup_name))
+            elif setup_function == SETUP_INFO:
+                print("Calling get_info('{}'):\n".format(setup_name))
                 get_info(setup_name)
             # else case is creating a new setup
             else:
                 try:
                     # convert string of a list to list
                     structure = ast.literal_eval(arguments[3])
-                    print("Calling setup({},{}):\n".format(setup_name, structure))
+                    print("Calling setup('{}', {}):\n".format(setup_name, structure))
                     setup(setup_name, structure)
                 except ValueError:
                     print("Error in reading setup mode; Input was '{}', needs to be either one of {} "
@@ -114,11 +114,21 @@ if __name__ == "__main__":
         # default value
         prime_number = 31
         setup_name = arguments[2]
-        secret_message = int(arguments[3])
+        try:
+            secret_message = int(arguments[3])
+        except ValueError:
+            print("Secret needs to be an integer value, not '{}'".format(arguments[3]))
+            sys.exit(1)
+
         # set prime number only if given (default possible)
         if len(arguments) is 5:
-            prime_number = int(arguments[4])
-        print("Calling share({}, {}, prime_number={}):\n".format(setup_name, secret_message, prime_number))
+            try:
+                prime_number = int(arguments[4])
+            except ValueError:
+                print("Secret needs to be an integer value.")
+                sys.exit(1)
+
+        print("Calling share('{}', {}, prime_number={}):\n".format(setup_name, secret_message, prime_number))
         share(setup_name, secret_message, prime_number)
 
     # case 'reconstruct':
@@ -127,7 +137,7 @@ if __name__ == "__main__":
         # decision between random and given subset, here: random, only number of people needed
         if len(arguments) is 4:
             number_of_random_people = int(arguments[3])
-            print("Calling reconstruct({}, number_of_people={}, random_subset=True, subset={{}}):\n"
+            print("Calling reconstruct('{}', number_of_people={}, random_subset=True, subset={{}}):\n"
                   .format(setup_name, number_of_random_people))
             reconstruct(setup_name, number_of_people=number_of_random_people)
         # specific subset case, the 4. argument needs to be 'False' to be handled correctly
@@ -141,7 +151,7 @@ if __name__ == "__main__":
                                              "{'s_1_0':'6','s_1_1':'14','s_2_1':'7','s_3_1':'10','s_1_2':'19'}"
             # convert string of list to list
             subset = ast.literal_eval(arguments[4])
-            print("Calling reconstruct({}, number_of_people=0, random_subset=False, subset={}):\n"
+            print("Calling reconstruct('{}', number_of_people=0, random_subset=False, subset={}):\n"
                   .format(setup_name, subset))
             reconstruct(setup_name, random_subset=random_subset, subset=subset)
         else:
@@ -157,7 +167,12 @@ if __name__ == "__main__":
                   .format(len(arguments), MODE_RENEW, arguments))
             sys.exit(1)
         setup_name = arguments[2]
-        old_shares = ast.literal_eval(arguments[3])
-        print("Calling renew({}, {}):\n"
+        try:
+            old_shares = ast.literal_eval(arguments[3])
+        except ValueError:
+            print("old_shares can't be parsed, please make sure to provide "
+                  "a correct dictionary of shareholder:share pairs or the exact term {'shares':'all'}")
+            sys.exit(1)
+        print("Calling renew('{}', {}):\n"
               .format(setup_name, old_shares))
         renew(setup_name, old_shares)
