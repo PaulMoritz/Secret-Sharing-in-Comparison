@@ -84,9 +84,6 @@ get **all** shareholder/share pairs from a given setup
 - setup (String): the setup to get all shareholders from
 - _returns_ a dictionary of the pairs
 
-
-`
-
 ---
 
 ### [`share_tools.py`](./src/share_tools.py)
@@ -100,7 +97,6 @@ reads the number of persons and thresholds from a created setup and returns a li
 - field_size (Integer): The field size to save
 - file_path(Path): The absolute directory where the data is to be saved
 - resulting_shares(Dict of _Shareholder:Share_ pairs): The shares to save
-
 
 ---
 
