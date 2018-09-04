@@ -60,9 +60,9 @@ def setup(name, lvl_list, conjunctive=True):
     try:
         os.mkdir(file_path)
     except OSError as e:
-        print("Directory could not be created, please try again."
-              "Be sure you don't use any of the following characters in the setup name: \ / : * ? < > |")
-        print(e)
+        print("Directory could not be created, please try again. "
+              "Make sure you don't use any of the following characters in the setup name: \ / : * ? < > |\n{}"
+              .format(repr(e)))
         return
     # get creation time
     created = str(time.strftime("%d.%m.%Y at %H:%M:%S"))
@@ -74,7 +74,7 @@ def setup(name, lvl_list, conjunctive=True):
         writer.writerows(metadata)
         # writer.writerows(lvl_list)
     setup_stats(lvl_list, name)
-    print("Setup \"{}\" successfully created!".format(name))
+    print("Setup \"{}\" successfully created!\nStored in {}".format(name, file_path))
 
 
 # write the level stats to a separate file
