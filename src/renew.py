@@ -115,8 +115,8 @@ def renew(setup, old_shares):
         print("\nThe resulting new shares for the given structure are:")
         for share in resulting_shares:
             print("{} : {}".format(share, resulting_shares[share]))
-        print("Old shares reconstruct the following polynomial:\t\t\t {}\n"
-              "New generated shares reconstruct the following polynomial:\t\t {}\n"
+        print("Old shares reconstruct the following polynomial:\t\t {}\n"
+              "New generated shares reconstruct the following polynomial:\t {}\n"
               "New Shares give the same result as old shares ({}), renewal successful."
               .format(rec_function, new_function, new_result))
         # create new .csv file to store the information
