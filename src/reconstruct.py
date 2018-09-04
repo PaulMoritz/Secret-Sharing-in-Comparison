@@ -50,7 +50,7 @@ def reconstruct(setup, number_of_people=0, random_subset=True, subset=empty_dict
         try:
             share_list = random.sample(tuples, number_of_people)
         except ValueError as e:
-            print("More people chosen ({}) than existing, please choose at most {} shareholders: {}"
+            print("More people chosen ({}) than existing, please choose at most {} shareholders.\n{}"
                   .format(number_of_people, len(tuples), repr(e)))
             return
     # else use given subset
@@ -104,7 +104,7 @@ def reconstruct(setup, number_of_people=0, random_subset=True, subset=empty_dict
         return
     elif print_statements:
         print("Requirement 1 'Unique Solution' is satisfied.")
-    if not supported_sequence(matrix):
+    if supported_sequence(matrix):
         print("Requirement 1 'No supported 1-sequence of odd length' not satisfied with given subset.")
         return
     elif print_statements:
