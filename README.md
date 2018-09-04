@@ -1,11 +1,11 @@
 # HSS
 Hierarchical Secret Sharing by Paul Moritz Ranly 
 
-> **NOTE** This project is inspired by [Dynamic and Verifiable Hierarchical Secret Sharing](https://eprint.iacr.org/2017/724.pdf)  
+> **NOTE** This project is inspired by [Dynamic and Verifiable Hierarchical Secret Sharing](./Dynamic_Birkhoff.pdf)  
 > from Giulia Traverso, Denise Demirel, Johannes Buchmann and part of an internship for Giulia Traverso at TU Darmstadt.
 
 
-> *To view this document properly and get links to all important references
+> *To view this document properly and get links to the references
 > I strongly suggest viewing with a markdown reader or reader/browser with .md extension.*
 
 
@@ -20,9 +20,14 @@ from the main (HSS) directory.
 ## Usage:
 To create a new setup, use the methods described in [Setup](#setup).  
 After a setup is created, you can create share values for a given secret message for the Shareholders with the methods from [Share](#share).  
-If you want to reconstruct the message from a subset of shareholders, use [Reconstruct](#reconstruct).
+If you want to reconstruct the message from a subset of shareholders, use [Reconstruct](#reconstruct).  
+Last, to renew the share values for an authorised set (or all) of shareholders, use [Renew](#renew).
   
 > **INFO** All used subfunctions are explained in detail in [subfunctions.md](./subfunctions.md)
+
+> **Update** To make accessing the main functionality easier, calls from the command-line were added. They are specified in the _Update_ section of each paragraph.
+ As this causes much input error-handling, not every input error will be caught. Please make sure you use the format provided, some example calls are included in [main.py](./src/main.py).
+
 
 ## Functionality:
 
@@ -35,9 +40,9 @@ use [setup.py](./src/setup.py) to create a new setup for a scenario to test.
 `setup(name, lvl_list, conjunctive):`  
 sets up a new scenario
 - name (string): a unique name for each setup, to use it in the other functions. Meaningful names can be helpful (e.g. "CompanyName"_levelstructure)
-- lvl_list (list of integer) : a list with a list of one Integervalue for the number of persons in each level and
-	one Integervalue for the threshold of the level.
-	e.g: [[2,1],[5,3],[9,6]]
+- lvl_list (list of integer) : a list with a list of one Integer for the number of persons in each level and
+	one Integer for the threshold of the level representing the _setup structure_.  
+e.g: [[2,1],[5,3],[9,6]]
 - conjunctive (boolean): wheter the hierarchy is conjunctive or not (--> disjunctive)
 
 
@@ -71,6 +76,7 @@ prints all info about the setup
 > `python main.py setup *setup_name* get`  
 >- To list all created setups:  
 > `python main.py setup (*setup_name*) list`  
+> where the setup name is optional (not necessary for execution).
 >
 > from the _src_ directory.
 >
@@ -80,10 +86,10 @@ prints all info about the setup
 ### Share
 Use [share.py](./src/share.py) to generate a function and create shares for a given secret message.
 
-`share(message, setup, prime_number):`  
+`share(setup, message, prime_number):`  
 creates shares for all Shareholders in one setup
-- message (Integer): the message/secret you want to share
 - setup (String): The Name of a created setup to use.  
+- message (Integer): the message/secret you want to share
 Note that the setup needs to be created first.
 - prime_number (Integer): Prime number to build a finite field, default value = 31  
   
@@ -91,7 +97,7 @@ Note that the setup needs to be created first.
 
 **Example Calls:**  
 
-`share(42, "Big_Company", 71)`  
+`share("Big_Company", 42, 71)`  
 
 
 
@@ -119,7 +125,7 @@ reconstructs the secret and the whole generated equation from [Share](#share) us
 - subset(Dict of _(Shareholder: Share)_ pairs) eg. `subset={"s_1_0": 13, "s_2_0": 11}`, _Default Value_ = {}: if `random_subset` is set to `False` you can provide your own subset of shareholders in the given Dictionary structure.
 >*Please be careful to only use real shareholders while providing a subset as every shareholder is checked for existence and a correct share value internally.*  
 > *Also, make sure that each entered shareholder is of String with format _"s_i_j"_ where _i_ determines the number of the shareholder (also: x-value; starting from 1) and _j_ is the number of the level the person is in (Levels start from 0).* 
-- print_statements(Boolean),  _Default Value_ = `True`: Determines if all taken steps are printed to the console. Used internally to disable the print while calling `reconstruct` in `reset`, to check if subset is authorized.  
+- print_statements(Boolean),  _Default Value_ = `True`: Determines if all taken steps are printed to the console. Used internally to disable the print while calling `reconstruct` in `renew`, to check if subset is authorized.  
 > _All errors or unexpected behaviours that lead to an early termination are printed to the screen anyhow!_ 
 
 **Example Calls:**  
@@ -135,9 +141,9 @@ reconstructs the secret and the whole generated equation from [Share](#share) us
 > `python main.py reconstruct *setup_name* *number_of_people*`  
 >- Reconstruct with a specific subset:  
 > `python main.py reconstruct *setup_name* False *subset*`  
+> _When using this call, make sure that you don't leave any spaces in the subset itself. This would prevent parsing from being successful._
 >
 > from the _src_ directory.
-
 >
 > You can find example calls in [main.py](./src/main.py)
 ---
@@ -168,9 +174,10 @@ renews the shares of the `old_shares` and saves new share values that can also r
 
 > **Update**: Renew can also be called _directly from the console_ by calling 
 >- `python main.py renew *setup_name* *old_shares*`  
+> _When using this call, make sure that you don't leave any spaces in the old_shares itself. This would prevent parsing from being successful._
+
 >- To use _all_ old shares, it is important that `{'shares':'all'}` is written exactly like this (also the apostrophes) in the console so that it can be parsed correctly.
 >
 > from the _src_ directory.
-
 >
 > You can find example calls in [main.py](./src/main.py)
