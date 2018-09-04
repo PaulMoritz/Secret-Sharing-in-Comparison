@@ -71,7 +71,6 @@ def check_supported(matrix, j, i):
     for row_num, row in enumerate(matrix):
         # check for south-west support
         if row_num < i:
-            print("why")
             for index, element in enumerate(row):
                 if index < j:
                     if element == 1:
