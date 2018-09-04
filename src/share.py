@@ -17,7 +17,10 @@ data_path = os.path.join(main_directory, "DATA")
 def share(setup, message, prime_number=31):
     file_path = os.path.join(data_path, setup, 'level_stats.csv')
     # make sure number is in finite field
-    message = message % prime_number
+    if message > prime_number:
+        message = message % prime_number
+        print("Due to the size of the finite field ({}), the secret was changed to {}.\n"
+              .format(prime_number, message))
     # check for prime as secret message
     if not is_prime(prime_number):
         print("Given prime_number is not a prime.")
