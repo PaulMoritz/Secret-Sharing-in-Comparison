@@ -108,12 +108,14 @@ if __name__ == "__main__":
     # case of 'share'
     elif mode == MODE_SHARE:
         # check for correct number of arguments
-        if not (len(arguments) is 3 or len(arguments) is 4):
+        if len(arguments) <= 3 or len(arguments) > 6:
             print("Wrong number of arguments ({}) in {}".format(len(arguments), MODE_SHARE))
             sys.exit(1)
         # default value
         prime_number = 31
+        name = ''
         setup_name = arguments[2]
+        print(arguments)
         try:
             secret_message = int(arguments[3])
         except ValueError:
@@ -121,15 +123,25 @@ if __name__ == "__main__":
             sys.exit(1)
 
         # set prime number only if given (default possible)
-        if len(arguments) is 5:
+        if len(arguments) >= 5:
             try:
                 prime_number = int(arguments[4])
             except ValueError:
-                print("Secret needs to be an integer value.")
+                print("Secret needs to be an integer value, but is {}.".format(arguments[4]))
                 sys.exit(1)
-
-        print("Calling share('{}', {}, prime_number={}):\n".format(setup_name, secret_message, prime_number))
-        share(setup_name, secret_message, prime_number)
+        # for multiple generations of share values pick a unique name and
+        # create share values for this name (under the given structure)
+        if len(arguments) is 6:
+            try:
+                name = arguments[5]
+                print("Calling share('{}', {}, prime_number={}, name={}):\n"
+                      .format(setup_name, secret_message, prime_number, name))
+            except ValueError:
+                print("Damn son.")
+                sys.exit(1)
+        else:
+            print("Calling share('{}', {}, prime_number={}):\n".format(setup_name, secret_message, prime_number))
+        share(setup_name, secret_message, prime_number, name)
 
     # case 'reconstruct':
     elif mode == MODE_RECONSTRUCT:

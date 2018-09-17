@@ -14,7 +14,7 @@ data_path = os.path.join(main_directory, "DATA")
 
 # creates shares for all Shareholders in one setup
 # needs a message (Integer), a setup and an optional prime number for the finite field
-def share(setup, message, prime_number=31):
+def share(setup, message, prime_number=31, name=""):
     file_path = os.path.join(data_path, setup, 'level_stats.csv')
     # make sure number is in finite field
     if message > prime_number:
@@ -76,9 +76,14 @@ def share(setup, message, prime_number=31):
     print("New shares are: {}".format(share_list))
     # write Shares to 'shares.csv' and save it in the setups directory
     try:
-        write_shares(prime_number, os.path.join(data_path, setup, "shares.csv"), share_list)
-        print("Shares are saved to folder 'DATA/{}/shares.csv'. Please don't edit the csv file manually."
-              .format(setup))
+        if name:
+            write_shares(prime_number, os.path.join(data_path, setup, "shares_{}.csv".format(name)), share_list)
+            print("Shares are saved to folder 'DATA/{}/shares_{}.csv'. Please don't edit the csv file manually."
+                  .format(setup, name))
+        else:
+            write_shares(prime_number, os.path.join(data_path, setup, "shares.csv"), share_list)
+            print("Shares are saved to folder 'DATA/{}/shares.csv'. Please don't edit the csv file manually."
+                  .format(setup))
     # error handling
     except PermissionError as e:
         print("Can't write to '{}', maybe try to close the file and try again. \n {}".format(file_path, repr(e)))
