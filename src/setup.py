@@ -46,7 +46,9 @@ def setup(name, lvl_list, conjunctive=True):
         print("Name \"{}\" already exists. Please choose another.".format(name))
         return
     # troubleshooting with input parameters
-    for level in lvl_list:
+    sum_of_all_people = 0
+    for level_number, level in enumerate(lvl_list):
+        sum_of_all_people += level[0]
         if len(level) != 2:
             print("Wrong number of Arguments in lvl_list: list of level with length {}"
                   " found ({}). lvl_list must be of Format [[num_level_1,"
@@ -56,6 +58,10 @@ def setup(name, lvl_list, conjunctive=True):
             if not isinstance(element, int):
                 print("Error: Non-Integer value as level/threshold.")
                 return
+        if sum_of_all_people < level[1]:
+            print("Threshold of level {} is {}, which is more than all shareholders existing up to this point ({})."
+                  .format(level_number, level[1], sum_of_all_people))
+            return
     # create new directory to store the data in
     try:
         os.mkdir(file_path)
