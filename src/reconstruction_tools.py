@@ -25,7 +25,7 @@ def interpolation_matrix(coordinates):
 # input: dict
 # e.g: read_subset({"s_0_0": 13, "s_1_0": 11})
 # returns a list [[sh, s],...] of the shareholder:share pairs
-def read_subset(subset):
+def dict_to_list(subset):
     list_of_shareholders = []
     for shareholder, share in subset.items():
         list_of_shareholders.append((shareholder, share))
@@ -46,7 +46,7 @@ def divide(a, b, field_size):
         return (a * inverse(b, field_size)) % field_size
     except ValueError:
         print("Error in inverse: no inverse element found for {}.".format(b))
-        return
+        raise
 
 
 # Gauss Jordan algorithm implemented in a finite field
@@ -82,7 +82,7 @@ def gauss_jordan(A, field_size):
                         A = swap(A, equation, A[j])
                     except ValueError as e:
                         print("Error in swap, unknown Value: {}".format(repr(e)))
-                        return
+                        raise
                 divisor = equation[j]
                 # divide the equation by the j'th element, to get a '1' at equation[j]
                 # division as done in a finite field!
@@ -261,3 +261,56 @@ def calc_derivative_vector(current_function, highest_derivative, field_size):
         # append to all functions
         all_functions.append(current_function)
     return all_functions
+
+
+# calculation of the matrix A(E,X,PHI) from the paper
+def calculate_a_matrix(person_ids, phi, field_size):
+    # make the vector phi a function with 1 as factor and store all needed derivatives of it in a list
+    phi_functions = [[1, i] for i in phi]
+    all_phis = calc_derivative_vector(phi_functions, len(person_ids), field_size)
+
+    # print("phi,", phi_functions)
+    # create matrix
+    a_matrix = np.zeros((len(person_ids), len(phi_functions)))
+    for i, row in enumerate(a_matrix):
+        # get the i and j values from each shareholder
+        # (i as the x-value and j as the needed derivative)
+        x_value = int(person_ids[i][0])
+        derivative_value = int(person_ids[i][1])
+        # print("X:", x_value, "J:", derivative_value, "phi:", all_phis[derivative_value])
+        # calculate PHI^j _k(i) for each matrix entry
+        for j, element in enumerate(row):
+            # print("outer loop ", i, "inner ", j, all_phis[derivative_value])
+            element = all_phis[derivative_value][j][0] * (x_value ** all_phis[derivative_value][j][1])
+            # print(element,"=",all_phis[derivative_value][j][0],"*(",x_value,"**",all_phis[derivative_value][j][1],")")
+            a_matrix[i][j] = element % field_size
+    return a_matrix
+
+
+# calculate the matrices with the column vector replacing the i'th column
+def get_matrices(matrix, column):
+    matrices = {}
+    for i in range(len(matrix[0])):
+        tmp_matrix = copy.copy(matrix)
+        for j, row in enumerate(tmp_matrix):
+            tmp_matrix[j][i] = column[j]
+        # print("\n", tmp_matrix)
+        matrices[i] = tmp_matrix
+    return matrices
+
+
+def shareholder_dict_to_lists(person_ids, shares, share_list):
+    for i, shareholder in enumerate(share_list):
+        name = shareholder[0].split('_')
+        name = name[1:]
+        try:
+            shares.append(int(shareholder[1]))
+            person_ids.append((int(name[0]), int(name[1])))
+        # handling errors
+        except ValueError as e:
+            print("Wrong format of shareholders given, should be 's_i_j' for ID (i,j) but was {}\n{}".format(repr(e), name))
+            raise
+        except IndexError as e:
+            print("Wrong format of shareholders given, should be 's_i_j' for ID (i,j)\n{}".format(repr(e)))
+            raise
+    return person_ids, shares

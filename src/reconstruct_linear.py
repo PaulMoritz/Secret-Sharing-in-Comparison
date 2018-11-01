@@ -1,10 +1,9 @@
 from reconstruction_tools import *
 from preconditions import *
-from determinant import *
 from read_and_write_data import read_data
 from function_tools import print_function
-from exceptions import *
 import random
+from exceptions import *
 
 #
 # All Requirements taken from Traverso, G., Demirel, D, Buchmann, J: Dynamic and Verifiable Hierarchical Secret Sharing
@@ -24,19 +23,15 @@ empty_dict = {}
 # reconstruct a secret with a given subset of people, only if
 # all thresholds are satisfied and
 # all requirements for a unique solution are given.
-# setup                     String  the setup name to reconstruct the secret from
-# number_of people          Integer number of participating people in the subset, chosen randomly
-# random_subset             Boolean, if the subset is to be chosen randomly or manually
-# subset                    the manually inserted subset, dictionary structure
-# reset_version_number      if the used setup is already a reset/renew, specifies the setup
-# print_statements          whether console outputs will be printed
-def reconstruct(setup, number_of_people=0, random_subset=True, subset=empty_dict,
-                reset_version_number=None, print_statements=True):
+# setup             String  the setup name to reconstruct the secret from
+# number_of people  Integer number of participating people in the subset, chosen randomly
+def reconstruct_linear(setup, number_of_people=0, random_subset=True,
+                       subset=empty_dict, reset_version_number=None, print_statements=True):
     # if none of the default values is given, return with error
     if number_of_people == 0 and random_subset is True and subset == empty_dict:
-        raise ValueError("Please enter either a correct subset of shareholders for 'subset='"
-                         "while setting random_subset=False or set random_subset=True"
-                         "and provide a number_of_people you want to reconstruct the secret from.")
+        raise Exception("Please enter either a correct subset of shareholders for 'subset='"
+                        "while setting random_subset=False or set random_subset=True"
+                        "and provide a number_of_people you want to reconstruct the secret from.")
     # create placeholders for a list of shares, of person IDs and functions
     shares = []
     person_ids = []
@@ -46,7 +41,7 @@ def reconstruct(setup, number_of_people=0, random_subset=True, subset=empty_dict
         data, _, thresholds = read_data(setup, reset_version_number)
     except FileNotFoundError as e:
         print("Could not find file:\n{}".format(repr(e)))
-        raise
+        return
     # get size of finite field
     field_size = int(data[1][0])
     # read data of shareholders into tuples
@@ -63,8 +58,8 @@ def reconstruct(setup, number_of_people=0, random_subset=True, subset=empty_dict
     else:
         # catch case subset == {}
         if not subset:
-            raise ValueError("Please enter a valid Dictionary of (shareholder:share) pairs as subset\n"
-                             'Example: subset={"s_0_0": 13, "s_1_0": 11}')
+            raise Exception("Please enter a valid Dictionary of (shareholder:share) pairs as subset\n"
+                            'Example: subset={"s_0_0": 13, "s_1_0": 11}')
         # read dict of subset into a list of lists
         share_list = dict_to_list(subset)
         number_of_people = len(share_list)
@@ -72,7 +67,19 @@ def reconstruct(setup, number_of_people=0, random_subset=True, subset=empty_dict
         print("All given shareholders: {}".format(tuples))
         print("Subset of {} shareholders randomly selected is {}.".format(number_of_people, share_list))
     # expand the lists of shares and person IDs
-    person_ids, shares = shareholder_dict_to_lists(person_ids, shares, share_list)
+    for i, shareholder in enumerate(share_list):
+        name = shareholder[0].split('_')
+        name = name[1:]
+        try:
+            shares.append(int(shareholder[1]))
+            person_ids.append((int(name[0]), int(name[1])))
+        # handling errors
+        except ValueError as e:
+            print("Wrong format of shareholders given, should be 's_i_j' for ID (i,j)\n{}".format(repr(e)))
+            raise
+        except IndexError as e:
+            print("Wrong format of shareholders given, should be 's_i_j' for ID (i,j)\n{}".format(repr(e)))
+            raise
     # sort person IDs and corresponding shares into lexicographic order
     person_ids,  shares = sort_coordinates(person_ids, shares)
     if print_statements:
@@ -81,11 +88,6 @@ def reconstruct(setup, number_of_people=0, random_subset=True, subset=empty_dict
     for i in range(thresholds[-1]):
         functions_involved.append(i)
     phi = functions_involved
-    # leads to a non-square matrix
-    if not len(person_ids) == len(phi):
-        raise ValueError("\nMatrix A is of format {}x{} but must be square for determinant calculation. "
-                         "(You need exactly {} shareholders to reconstruct)"
-                         .format(len(person_ids), len(phi), len(phi)))
     if print_statements:
         print("Share value column for interpolation (in lexicographic order) is {}".format(shares))
         print("Vector phi of function x^i (with i printed) is {}".format(phi))
@@ -96,18 +98,18 @@ def reconstruct(setup, number_of_people=0, random_subset=True, subset=empty_dict
         print("\nChecking thresholds and requirements:")
     # check preliminaries for the interpolation
     if not thresholds_fulfilled(setup, person_ids, print_statements):
-        raise ThresholdNotFulfilledException("Threshold not fulfilled.")
+        raise ThresholdNotFulfilledException
     if not requirement_1(matrix, highest_derivative, max_person_number):
         print("Requirement 1 'Unique Solution' not satisfied with given subset.")
-        raise RequirementNotFulfilledException("Requirement 1 not fulfilled")
+        raise RequirementNotFulfilledException
     elif print_statements:
         print("Requirement 1 'Unique Solution' is satisfied.")
     if supported_sequence(matrix):
         print("Requirement 1 'No supported 1-sequence of odd length' not satisfied with given subset.")
-        raise RequirementNotFulfilledException("Found supported 1-sequence with odd length")
+        raise RequirementNotFulfilledException
     elif print_statements:
         print("Requirement 1 'No supported 1-sequence of odd length' is satisfied.")
-    if not requirement_2(highest_derivative, field_size, len(person_ids)):
+    if not requirement_2(highest_derivative, field_size, max_person_number):
         pass
         # TODO figure x_k out for precondition 2; FULFILLMENT OF REQUIREMENT 2 NOT IMPLEMENTED
         '''
@@ -122,50 +124,34 @@ def reconstruct(setup, number_of_people=0, random_subset=True, subset=empty_dict
     A = create_matrix(person_ids, shares, field_size, phi, highest_derivative)
     if print_statements:
         print("\nAll requirements for a unique solution are given, starting interpolation...")
-
-    # calculate matrix A from the paper
-    a_matrix = calculate_a_matrix(person_ids, phi, int(field_size))
+        print("\nResulting matrix of linear equations is:", end='')
+        print_matrix(A)
+    try:
+        # solve the linear equations to get the coefficients
+        resulting_matrix, coefficients = gauss_jordan(A, field_size)
+        if print_statements:
+            print("Using Gauss-Jordan elimination to get the coefficients of the function...")
+            print("Resulting matrix is:", end='')
+            print_matrix(A)
+    except ValueError as e:
+        print(e)
+        raise
+    # sanity check, we might encounter an overdetermined system, check that all equations not worked on equal zero
+    # or alternatively are just a copy of the line holding the result; this way the result is also right
+    sanity_coefficients = list(coefficients[len(A[0]) - 1:])
+    for position, c in enumerate(sanity_coefficients):
+        if not c[0] == 0:
+            # catch the second case from above (just a copied line)
+            if not equal(resulting_matrix[c[1]], resulting_matrix[len(A[0]) - 2]):
+                raise ValueError("Error in Calculation, Gauss-Jordan elimination could not produce a correct result")
+    # print the final function and the secret
+    final_coefficients = list(coefficients[:len(A[0])])
     if print_statements:
-        print("Calculated matrix A(E, X, phi) =", end='')
-        print_matrix(a_matrix)
-
-    # matrix must be square to get the determinants
-    if len(a_matrix) == len(a_matrix[0]):
-        # get determinant
-        det = int(determinant(a_matrix, field_size))
-        if print_statements:
-            print("Determinant of A is {}".format(det))
-        # calculate the matrices with the share vectors as the i'th column
-        matrices = get_matrices(a_matrix, shares)
-        # for matrix in matrices:
-        #    print(matrices[matrix])
-        # determinant as integer value, needs to be rounded because of calculation
-        # print("Calculating determinants")
-        determinants = [0]*len(matrices)
-        for i in range(len(matrices)):
-            # print("Determinant for matrices[{}]".format(i))
-            # print_matrix(matrices[i])
-            determinants[i] = int(determinant(matrices[i], field_size) % field_size)
-            # print("is {} -> saved to {} (i={})".format(determinants[i], determinants, i))
-        # determinants = [int(determinant(matrices[i], field_size) % field_size) for i in range(len(matrices))]
-        if print_statements:
-            print("Determinants of reconstruction matrices are {}".format(determinants))
-
-        if print_statements:
-            print("Retrieved determinants, starting reconstruction of coefficients")
-        resulting_function = []
-        # divide the determinants to get the coefficients for the resulting function
-        for k, determinant_value in enumerate(determinants):
-            tmp_result = divide(determinant_value, det, field_size)
-            resulting_function.append([tmp_result, k])
-        if print_statements:
-            print("The reconstructed function is\n{}".format(print_function(resulting_function, printed=False)))
-        # secret message is the free coefficient
-        secret = resulting_function[0][0]
-        if print_statements:
-            print("The reconstructed message is {}".format(secret))
-        return secret, resulting_function, det, determinants, a_matrix
+        print("Reading coefficients from interpolated function from the matrix...")
+        print("The interpolated function is \t", end='')
+        reconstructed_function = print_function(final_coefficients)
+        print("The secret is {}".format(final_coefficients[0][0]))
+        print("\nReconstruction finished.")
     else:
-        raise NotImplementedError("Should never be reached")
-
-
+        reconstructed_function = print_function(final_coefficients, printed=False)
+    return int(final_coefficients[0][0]), reconstructed_function
