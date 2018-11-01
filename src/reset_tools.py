@@ -1,4 +1,4 @@
-from read_data_from_files import read_data
+from read_and_write_data import read_data
 import random
 import os
 import re
@@ -59,7 +59,7 @@ def level_structure_to_id(structure):
 # get all shareholder/ share pairs from a given setup
 # used for the special case parameter '{'shares': 'all'}' in renew
 # return a dictionary of the pairs
-def get_all_shares_from_setup(setup):
-    shares, _, _ = read_data(setup)
+def get_all_shares_from_setup(setup, reset_version_number):
+    shares, _, _ = read_data(setup, reset_version_number)
     all_shares = {share[0]: share[1] for share in shares.values[2:]}
     return all_shares

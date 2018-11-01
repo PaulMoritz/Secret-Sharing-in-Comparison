@@ -3,6 +3,7 @@ import shutil
 import time
 import csv
 import os.path
+from read_and_write_data import write_level_stats
 
 #
 # TODO: Only conjunctive secret sharing implemented
@@ -22,11 +23,12 @@ def delete_setup(name):
     if os.path.exists(file_path):
         try:
             shutil.rmtree(file_path)
-            print("Setup deleted.")
+            print("'{}' deleted.".format(name))
         except PermissionError as e:
             print("Can't delete setup. Please check Error: {}".format(e))
+            raise
     else:
-        print("Name does not exist.")
+        print("'{}' does not exist.".format(name))
 
 
 # lists all created setups in the DATA directory
@@ -43,25 +45,22 @@ def setup(name, lvl_list, conjunctive=True):
     file_path = os.path.join(data_path, name)
     # check if name already exists, return with info printed when yes
     if os.path.exists(file_path):
-        print("Name \"{}\" already exists. Please choose another.".format(name))
-        return
+        raise FileExistsError("Name \"{}\" already exists. Please choose another.".format(name))
     # troubleshooting with input parameters
     sum_of_all_people = 0
     for level_number, level in enumerate(lvl_list):
         sum_of_all_people += level[0]
         if len(level) != 2:
-            print("Wrong number of Arguments in lvl_list: list of level with length {}"
-                  " found ({}). lvl_list must be of Format [[num_level_1,"
-                  "threshold_level_1],[num_level_2, threshold_level_2],...]".format(len(level), level))
-            return
+            raise ValueError("Wrong number of Arguments in lvl_list: list of level with length {} "
+                             "found ({}). lvl_list must be of Format [[num_level_1,"
+                             "threshold_level_1],[num_level_2, threshold_level_2],...]".format(len(level), level))
         for element in level:
             if not isinstance(element, int):
-                print("Error: Non-Integer value as level/threshold.")
-                return
+                raise TypeError("Error: Non-Integer value as level/threshold.")
         if sum_of_all_people < level[1]:
-            print("Threshold of level {} is {}, which is more than all shareholders existing up to this point ({})."
-                  .format(level_number, level[1], sum_of_all_people))
-            return
+            raise ValueError("Threshold of level {} is {}, which is more than all "
+                             "shareholders existing up to this point ({})."
+                             .format(level_number, level[1], sum_of_all_people))
     # create new directory to store the data in
     try:
         os.mkdir(file_path)
@@ -69,7 +68,13 @@ def setup(name, lvl_list, conjunctive=True):
         print("Directory could not be created, please try again. "
               "Make sure you don't use any of the following characters in the setup name: \ / : * ? < > |\n{}"
               .format(repr(e)))
-        return
+        raise
+    # create info.csv file
+    create_info_file(conjunctive, file_path, lvl_list, name)
+
+
+# create the info.csv file for the given setup
+def create_info_file(conjunctive, file_path, lvl_list, name):
     # get creation time
     created = str(time.strftime("%d.%m.%Y at %H:%M:%S"))
     # write data in csv format and save as 'info.csv'
@@ -79,19 +84,8 @@ def setup(name, lvl_list, conjunctive=True):
         # ["number of people", "threshold"]]
         writer.writerows(metadata)
         # writer.writerows(lvl_list)
-    setup_stats(lvl_list, name)
+        write_level_stats(lvl_list, os.path.join(file_path, "level_stats.csv"))
     print("Setup \"{}\" successfully created!\nStored in {}".format(name, file_path))
-
-
-# write the level stats to a separate file
-# makes access for further work on setup easier (no offset for metadata)
-def setup_stats(stat_list, name):
-    file_path = os.path.join(data_path, name)
-    # save file as 'level_stats.csv'
-    with open(os.path.join(file_path, "level_stats.csv"), 'w+', newline='', encoding='utf8') as file:
-        writer = csv.writer(file, delimiter=',')
-        writer.writerows([["People", "Threshold"]])
-        writer.writerows(stat_list)
 
 
 # print the info to a given setup
@@ -100,8 +94,7 @@ def get_info(name):
     path_to_level_stats = os.path.join(data_path, name, 'level_stats.csv')
     # check if setup exists
     if not os.path.exists(file_path):
-        print("Setup does not exist.")
-        return
+        raise FileNotFoundError("Setup does not exist.")
     # else case:
     with open(file_path, 'r') as info_file:
         reader = csv.reader(info_file, delimiter=',')
@@ -121,10 +114,10 @@ def get_info(name):
         with open(path_to_level_stats, 'r') as stats_file:
             lines = stats_file.read().splitlines()
             # Print all meta- & level-Info:
-            print("Name: {}\nType: {}\nCreated: {}".format(name, type_string, date))
-            print("Level structure is displayed as [number_of_people_in_level, threshold]:")
-            for i in range(1, len(lines)):
-                print("Level {} structure is: [{}]".format(i, lines[i]))
+        print("Name: {}\nType: {}\nCreated: {}".format(name, type_string, date))
+        print("Level structure is displayed as [number_of_people_in_level, threshold]:")
+        for i in range(1, len(lines)):
+            print("Level {} structure is: [{}]".format(i, lines[i]))
 
 
 # check if given String is either "True", "true" or 1/"1"
