@@ -30,6 +30,7 @@ from setup import setup, get_info, delete_setup, list_setups, str2bool
 from share import share
 from reconstruct import reconstruct
 from renew import renew
+import test_setups
 
 # save arguments from the console-input
 arguments = sys.argv
@@ -42,7 +43,8 @@ if __name__ == "__main__":
     MODE_SHARE = "share"
     MODE_RECONSTRUCT = "reconstruct"
     MODE_RENEW = "renew"
-    VALID_MODES = [MODE_SETUP, MODE_SHARE, MODE_RECONSTRUCT, MODE_RENEW]
+    MODE_TEST = "test"
+    VALID_MODES = [MODE_SETUP, MODE_SHARE, MODE_RECONSTRUCT, MODE_RENEW, MODE_TEST]
 
     # additional modes for the different functionality in setup
     SETUP_DELETE = "delete"
@@ -52,7 +54,7 @@ if __name__ == "__main__":
     VALID_SETUP = [SETUP_DELETE, SETUP_LIST, SETUP_INFO]
 
     # catch case of to few arguments given
-    if arguments is None or len(arguments) < 3:
+    if arguments is None or len(arguments) < 2 or (len(arguments) < 3 and not arguments[1] == MODE_TEST):
         sys.stderr.write("Please specify a mode and at least the setup name. ")
         sys.stderr.write("For example: python main.py setup ExampleName [[1,1],[3,2],[4,4]]")
         sys.exit(1)
@@ -127,7 +129,7 @@ if __name__ == "__main__":
             try:
                 prime_number = int(arguments[4])
             except ValueError:
-                print("Secret needs to be an integer value, but is {}.".format(arguments[4]))
+                print("Prime number needs to be an integer value, but is {}.".format(arguments[4]))
                 sys.exit(1)
         # for multiple generations of share values pick a unique name and
         # create share values for this name (under the given structure)
@@ -193,3 +195,10 @@ if __name__ == "__main__":
         print("Calling renew('{}', {}):\n"
               .format(setup_name, old_shares))
         renew(setup_name, old_shares)
+
+    elif mode == MODE_TEST:
+        if not len(arguments) == 2:
+            print("Wrong number of arguments, Mode 'test' does not support further parameters.")
+            sys.exit(1)
+        else:
+            test_setups.main()

@@ -109,6 +109,7 @@ def thresholds_fulfilled(setup, person_IDs, print_statements):
         thresholds = data[1].values
     except FileNotFoundError as e:
         print(repr(e))
+        raise
     # For each threshold check if enough people are available
     th = list(thresholds)
     # insert t[-1] = 0 as start
@@ -122,9 +123,8 @@ def thresholds_fulfilled(setup, person_IDs, print_statements):
                 count_of_persons += 1
         # after all persons are viewed, if there are less than the threshold, break
         if count_of_persons < th[number_of_level + 1]:
-            if print_statements:
-                print("Threshold {} not fulfilled, the subset contains only {} people up to this level."
-                      "(Should be at least {})".format(number_of_level, count_of_persons, item))
+            print("Threshold {} not fulfilled, the subset contains only {} people up to this level."
+                  "(Should be at least {})".format(number_of_level, count_of_persons, th[number_of_level + 1]))
             return False
         else:
             if print_statements:
