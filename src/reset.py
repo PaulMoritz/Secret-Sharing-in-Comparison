@@ -1,10 +1,10 @@
 from reconstruct import reconstruct
 from reconstruction_tools import dict_to_list, print_matrix, calc_derivative_vector,\
-    sort_coordinates, shareholder_dict_to_lists, divide
+    sort_coordinates, shareholder_share_list_to_lists, divide
 from reset_tools import *
 from read_and_write_data import create_reset_file
 from function_tools import generate_function, calc_function, print_function
-from read_and_write_data import read_data
+from read_and_write_data import read_data, read_field_size
 from determinant import determinant, get_minor
 import numpy as np
 import copy
@@ -30,7 +30,7 @@ def reset(setup, old_shares, new_shares=new_list, create_new_shares_randomly=Fal
           number_of_random_shares=0, reset_version_number=None, print_statements=True):
     # read field size and level structure from data
     data, _, thresholds = read_data(setup, reset_version_number)
-    field_size = int(data[1][0])
+    field_size = read_field_size(setup)
     level_structure = copy.copy(new_shares)
     # setup for random shares
     if create_new_shares_randomly:
@@ -46,8 +46,10 @@ def reset(setup, old_shares, new_shares=new_list, create_new_shares_randomly=Fal
         raise ValueError("Please enter a valid set of new shareholders "
                          "(or a number >0 if you want to create random new shares).")
     # get results from reconstruction with old shares, most of it used for console outputs and verification
-    rec_result, rec_function, determinant_of_original_matrix, determinants, matrix =\
+    rec_result, rec_function, determinant_of_original_matrix, determinants, _ =\
         reconstruct(setup, number_of_old_shares, random_subset=False, subset=old_shares, print_statements=False)
+    matrix_path = os.path.join(data_path, setup, 'matrix_A.txt')
+    matrix = np.loadtxt(matrix_path, dtype=int)
     # put the dict of old shares into list format
     shares = dict_to_list(old_shares)
     # check if all given shareholders exist
@@ -68,14 +70,13 @@ def reset(setup, old_shares, new_shares=new_list, create_new_shares_randomly=Fal
         print("Creating random functions with degree {} for old shareholders.".format(degree_of_function))
     if debug:
         print("Old shareholders:", old_shares)
-    person_ids = []
-    vector_of_shares = []
+
     # get two lists of shareholder IDs and share values
     old_shares_list = dict_to_list(old_shares)
-    person_ids, shares = shareholder_dict_to_lists(person_ids, vector_of_shares, old_shares_list)
+    person_ids, shares = shareholder_share_list_to_lists(old_shares_list)
 
     # put those lists into lexicographic order
-    person_ids, vector_of_shares = sort_coordinates(person_ids, vector_of_shares)
+    person_ids, vector_of_shares = sort_coordinates(person_ids, shares)
 
     # actual reset starts here
     # dictionary of random functions for each old shareholder
@@ -122,7 +123,6 @@ def reset(setup, old_shares, new_shares=new_list, create_new_shares_randomly=Fal
             except ValueError as e:
                 raise ValueError("Error in accessing index of shareholder,"
                                  "format should be 's_i_j' for ID (i,j)\n{}".format(repr(e)))
-
     if debug:
         print_matrix(partial_shares)
     # sum up all columns  and % field_size

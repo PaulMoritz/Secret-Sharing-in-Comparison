@@ -18,9 +18,16 @@ def read_data(setup, read_data_number=None):
         threshold_path = os.path.join(data_path, setup, 'level_stats_after_reset_{}.csv'.format(read_data_number))
     # read shareholders and values
     file_path = os.path.join(data_path, setup, 'shares.csv')
-    data = pd.read_csv(file_path, skiprows=0, header=None, delimiter=',', )
+    data = pd.read_csv(file_path, skiprows=0, header=0, delimiter=',', )
     levels, thresholds = read_level_stats(threshold_path)
     return data, levels, thresholds
+
+
+def read_field_size(setup):
+    info_path = os.path.join(data_path, setup, 'info.csv')
+    with open(info_path, 'r') as f:
+        rows = list(csv.reader(f))
+    return int(rows[-1][-1])
 
 
 # write the level stats to a separate file
@@ -94,6 +101,6 @@ def read_level_stats(file_path):
 def write_shares(field_size, file_path, resulting_shares):
     with open(file_path, 'w+', newline='', encoding='utf8') as file:
         writer = csv.writer(file)
-        writer.writerow(["Chosen finite field size", field_size])
+        # writer.writerow(["Chosen finite field size", field_size])
         writer.writerow(["Shareholder", "Share"])
         writer.writerows(resulting_shares.items())

@@ -1,6 +1,6 @@
 from reconstruction_tools import *
 from preconditions import *
-from read_and_write_data import read_data
+from read_and_write_data import read_data, read_field_size
 from function_tools import print_function
 import random
 from exceptions import *
@@ -43,9 +43,9 @@ def reconstruct_linear(setup, number_of_people=0, random_subset=True,
         print("Could not find file:\n{}".format(repr(e)))
         return
     # get size of finite field
-    field_size = int(data[1][0])
+    field_size = read_field_size(setup)
     # read data of shareholders into tuples
-    tuples = [tuple(x) for x in data.values[2:]]
+    tuples = [tuple(x) for x in data.values]
     # if chosen, select a random sample of given shareholders
     if random_subset:
         try:

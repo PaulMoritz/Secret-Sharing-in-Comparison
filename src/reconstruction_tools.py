@@ -299,7 +299,10 @@ def get_matrices(matrix, column):
     return matrices
 
 
-def shareholder_dict_to_lists(person_ids, shares, share_list):
+def shareholder_share_list_to_lists(share_list):
+    shares = []
+    # list of tuples
+    person_ids = []
     for i, shareholder in enumerate(share_list):
         name = shareholder[0].split('_')
         name = name[1:]
@@ -314,3 +317,5 @@ def shareholder_dict_to_lists(person_ids, shares, share_list):
             print("Wrong format of shareholders given, should be 's_i_j' for ID (i,j)\n{}".format(repr(e)))
             raise
     return person_ids, shares
+
+# print(divide(45, 2, 997))

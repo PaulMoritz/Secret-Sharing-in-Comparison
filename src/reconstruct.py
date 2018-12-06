@@ -1,10 +1,11 @@
 from reconstruction_tools import *
 from preconditions import *
 from determinant import *
-from read_and_write_data import read_data
+from read_and_write_data import read_data, read_field_size
 from function_tools import print_function
 from exceptions import *
 import random
+import yaml
 
 #
 # All Requirements taken from Traverso, G., Demirel, D, Buchmann, J: Dynamic and Verifiable Hierarchical Secret Sharing
@@ -38,8 +39,7 @@ def reconstruct(setup, number_of_people=0, random_subset=True, subset=empty_dict
                          "while setting random_subset=False or set random_subset=True"
                          "and provide a number_of_people you want to reconstruct the secret from.")
     # create placeholders for a list of shares, of person IDs and functions
-    shares = []
-    person_ids = []
+
     functions_involved = []
     # read all necessary data from the setup
     try:
@@ -48,9 +48,9 @@ def reconstruct(setup, number_of_people=0, random_subset=True, subset=empty_dict
         print("Could not find file:\n{}".format(repr(e)))
         raise
     # get size of finite field
-    field_size = int(data[1][0])
+    field_size = read_field_size(setup)
     # read data of shareholders into tuples
-    tuples = [tuple(x) for x in data.values[2:]]
+    tuples = [tuple(x) for x in data.values]
     # if chosen, select a random sample of given shareholders
     if random_subset:
         try:
@@ -72,7 +72,7 @@ def reconstruct(setup, number_of_people=0, random_subset=True, subset=empty_dict
         print("All given shareholders: {}".format(tuples))
         print("Subset of {} shareholders randomly selected is {}.".format(number_of_people, share_list))
     # expand the lists of shares and person IDs
-    person_ids, shares = shareholder_dict_to_lists(person_ids, shares, share_list)
+    person_ids, shares = shareholder_share_list_to_lists(share_list)
     # sort person IDs and corresponding shares into lexicographic order
     person_ids,  shares = sort_coordinates(person_ids, shares)
     if print_statements:
@@ -125,6 +125,9 @@ def reconstruct(setup, number_of_people=0, random_subset=True, subset=empty_dict
 
     # calculate matrix A from the paper
     a_matrix = calculate_a_matrix(person_ids, phi, int(field_size))
+    matrix_path = os.path.join(data_path, setup, 'matrix_A.txt')
+    np.savetxt(matrix_path, a_matrix, fmt='%d')
+
     if print_statements:
         print("Calculated matrix A(E, X, phi) =", end='')
         print_matrix(a_matrix)

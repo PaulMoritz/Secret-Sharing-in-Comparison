@@ -24,10 +24,10 @@ def create_new_shares(number_of_shares, number_of_levels):
 # check if all given shareholders also exist in the given data
 # return True if all shares are valid, false otherwise
 def shareholders_valid(data, shares):
-    tuples = [tuple(x) for x in data.values[2:]]
+    tuples = [tuple(x) for x in data.values]
     for share in shares:
         # cast shares to tuples for comparison
-        share = (str(share[0]), str(share[1]))
+        share = (str(share[0]), int(share[1]))
         if share not in tuples:
             print("Could not find {} in the shares {}.".format(share, tuples))
             return False
@@ -61,5 +61,5 @@ def level_structure_to_id(structure):
 # return a dictionary of the pairs
 def get_all_shares_from_setup(setup, reset_version_number):
     shares, _, _ = read_data(setup, reset_version_number)
-    all_shares = {share[0]: share[1] for share in shares.values[2:]}
+    all_shares = {share[0]: share[1] for share in shares.values}
     return all_shares

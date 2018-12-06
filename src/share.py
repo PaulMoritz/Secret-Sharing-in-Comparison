@@ -54,6 +54,7 @@ def share(setup, message, field_size=31, name="", print_statements=True):
     share_dict = {}
     # needed to check if the function needs to be derived
     old_j = 0
+    person_number = 1
     for level, number in enumerate(list_of_people_per_level):
         # we need to derive only if we calculate values for a new level
         j = int(thresholds[level])
@@ -67,11 +68,12 @@ def share(setup, message, field_size=31, name="", print_statements=True):
         current_function = derivatives[j]
         # calculate values and append to the share_dict dict for each shareholder
         for person in range(1, int(number) + 1):
-            shareholder = ("s_{}_{}".format(person, thresholds[level]))
+            shareholder = ("s_{}_{}".format(person_number, thresholds[level]))
             if person == 1 and print_statements:
                 print("With this function we calculate shares for the following shareholders:")
             # calculate the value for the shareholder
-            result = calc_function(current_function, person, field_size)
+            result = calc_function(current_function, person_number, field_size)
+            person_number += 1
             if print_statements:
                 print("Shareholder {}'s share is {}".format(shareholder, result))
             share_dict[shareholder] = result

@@ -15,7 +15,7 @@ from reset import reset
 from add import add
 from add_tools import merge_data
 
-random.seed(42)
+# random.seed(42)
 
 # path to DATA directory
 cwd = os.getcwd()
@@ -23,6 +23,7 @@ main_directory = os.path.abspath(os.path.join(cwd, os.pardir))
 data_path = os.path.join(main_directory, "DATA")
 
 prime = 997
+
 
 def main():
     print("\n" * 10)
@@ -47,7 +48,7 @@ def main():
             # setup
             delete_setup(doc['name'])
             print("\nCalling setup('{}', {}):".format(name, levels))
-            setup(name, levels)
+            setup(name, levels, field_size=prime)
 
             # share
             print("\nCalling share('{}', {}, prime_number={}, print_statements=False):"
@@ -60,7 +61,7 @@ def main():
                   .format(name, thresholds[-1]))
             try:
                 secret, resulting_function, original_determinant, other_determinants, matrix\
-                    = reconstruct(name, thresholds[-1], print_statements=False)
+                    = reconstruct(name, thresholds[-1], print_statements=True)
             except TypeError as e:
                 print("Could not reconstruct to a valid integer-result (test_setups): {}".format(e))
                 sys.exit(1)
@@ -128,7 +129,8 @@ def main():
             max_options = [(int(item.split('_')[1]) + 1, int(item.split('_')[2])) for item in max_options]
             for option in max_options:
                 print("\nCalling add('{}', {}, {}".format(name, old_shares, option))
-                add_shares, add_result = add(name, old_shares, option, print_statements=False)
+                add_shares, add_result = add(name, old_shares, option, print_statements=True,
+                                             function_f=original_function)
                 print("New shares after add {} are:".format(option))
                 for each_share in add_shares:
                     print(each_share, ":", add_shares[each_share])
@@ -140,8 +142,13 @@ def main():
 def old_shares_to_dict(name):
     all_shares = {}
     shares_path = os.path.join(data_path, name, 'shares.csv')
-    shares = pd.read_csv(shares_path, skiprows=0, header=None, delimiter=',', )
-    tuples = [tuple(x) for x in shares.values[2:]]
+    shares = pd.read_csv(shares_path, skiprows=0, header=0, delimiter=',', )
+    tuples = [tuple(x) for x in shares.values]
     for (x, y) in tuples:
         all_shares[x] = y
+    print(all_shares)
     return all_shares
+
+
+if __name__ == '__main__':
+    main()

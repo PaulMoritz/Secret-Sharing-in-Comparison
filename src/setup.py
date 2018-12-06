@@ -41,7 +41,7 @@ def list_setups():
 
 # builds a new setup with all given parameters and
 # creates a directory in the DATA-path with an info file
-def setup(name, lvl_list, conjunctive=True):
+def setup(name, lvl_list, field_size=997, conjunctive=True):
     file_path = os.path.join(data_path, name)
     # check if name already exists, return with info printed when yes
     if os.path.exists(file_path):
@@ -70,20 +70,19 @@ def setup(name, lvl_list, conjunctive=True):
               .format(repr(e)))
         raise
     # create info.csv file
-    create_info_file(conjunctive, file_path, lvl_list, name)
+    create_info_file(conjunctive, file_path, lvl_list, name, field_size)
 
 
 # create the info.csv file for the given setup
-def create_info_file(conjunctive, file_path, lvl_list, name):
+def create_info_file(conjunctive, file_path, lvl_list, name, field_size):
     # get creation time
     created = str(time.strftime("%d.%m.%Y at %H:%M:%S"))
     # write data in csv format and save as 'info.csv'
     with open(os.path.join(file_path, "info.csv"), 'w+', newline='', encoding='utf8') as file:
         writer = csv.writer(file, delimiter=',')
-        metadata = [['Name', name], ['Created', created], ["Conjunctive?", conjunctive], ['']]
-        # ["number of people", "threshold"]]
+        metadata = [['Name', name], ['Created', created],
+                    ["Conjunctive?", conjunctive], ["Finite field size", field_size]]
         writer.writerows(metadata)
-        # writer.writerows(lvl_list)
         write_level_stats(lvl_list, os.path.join(file_path, "level_stats.csv"))
     print("Setup \"{}\" successfully created!\nStored in {}".format(name, file_path))
 

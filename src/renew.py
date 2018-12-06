@@ -2,7 +2,7 @@ from reconstruct import reconstruct
 from reconstruction_tools import dict_to_list, calc_derivative_vector
 from reset_tools import *
 from function_tools import generate_function, calc_function, print_function
-from read_and_write_data import read_data
+from read_and_write_data import read_data, read_field_size
 from read_and_write_data import create_renew_file
 from exceptions import *
 import numpy as np
@@ -24,7 +24,7 @@ def renew(setup, old_shares, reset_version_number=None, print_statements=True):
     new_shares = list(old_shares.keys())
     # get all necessary data, i.e. the maximum degree of the functions and the size of the finite field
     data, _, thresholds = read_data(setup, reset_version_number)
-    field_size = int(data[1][0])
+    field_size = read_field_size(setup)
     number_of_old_shares = len(old_shares)
     degree_of_function = thresholds[-1] - 1
     # check if the old shares can reconstruct the correct secret and if all given shareholders actually exist

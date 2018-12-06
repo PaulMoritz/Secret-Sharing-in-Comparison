@@ -66,10 +66,10 @@ def print_function(coefficients, printed=True):
 # generates coefficients for the function randomly
 # Format: [[a_0, 0], [a_1, 1], [a_2, 2] ...] for f(x) = a_0 *x^0 + a_1 *x^1 + a_2 *x^2....
 # with a_0 = message
-def generate_function(in_degree, message, prime_number):
+def generate_function(in_degree, message, field_size):
     coefficients = [[message, 0]]
     for i in range(1, in_degree + 1):
-        a_i = np.random.randint(0, prime_number)
+        a_i = np.random.randint(0, field_size)
         coefficients.append([a_i, i])
     # print("coefficients are: " + str(coefficients))
     return coefficients
