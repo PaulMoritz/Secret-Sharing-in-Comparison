@@ -1,14 +1,14 @@
 import math
 import os
 import pandas as pd
+from path import get_data_path
 #
 # All Requirements taken from Traverso, G., Demirel, D, Buchmann, J: Dynamic and Verifiable Hierarchical Secret Sharing
 #
 
+
 # path to DATA directory
-cwd = os.getcwd()
-main_directory = os.path.abspath(os.path.join(cwd, os.pardir))
-data_path = os.path.join(main_directory, "DATA")
+data_path = get_data_path()
 
 
 # Requirement 1 from the Appendix (Theorem 3 in Paper)

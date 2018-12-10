@@ -4,16 +4,11 @@ import time
 import csv
 import os.path
 from read_and_write_data import write_level_stats
+from path import get_data_path
 
-#
-# TODO: Only conjunctive secret sharing implemented
-#
 
 # path to DATA directory
-cwd = os.getcwd()
-# get the parent directory of the source files
-main_directory = os.path.abspath(os.path.join(cwd, os.pardir))
-data_path = os.path.join(main_directory, "DATA")
+data_path = get_data_path()
 
 
 # deletes the folder and all its files if a directory with the given name exists

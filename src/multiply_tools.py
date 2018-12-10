@@ -8,13 +8,13 @@ from reconstruction_tools import calc_derivative_vector, shareholder_share_list_
 from determinant import *
 from add_tools import randomly_split, compute_derivative_of_interpolation_polynomial, binomial_coefficient
 from reconstruct import reconstruct
+from path import get_data_path
+
 
 random.seed(42)
 
 # get path to DATA directory
-cwd = os.getcwd()
-main_directory = os.path.abspath(os.path.join(cwd, os.pardir))
-data_path = os.path.join(main_directory, "DATA")
+data_path = get_data_path()
 
 
 # proposed PreMult algorithm
@@ -34,7 +34,7 @@ def pre_mult(setup):
     # get the matrix A from the saved file
     matrix_path = os.path.join(data_path, setup, 'matrix_A.txt')
     matrix = np.loadtxt(matrix_path, dtype=int)
-    print(matrix)
+    print("Matrix A:\n", matrix)
     # r = number of shareholders participating
     r = len(shareholders)
     # first step: choose alpha and beta
@@ -47,6 +47,7 @@ def pre_mult(setup):
     alpha_secrets = [None] * r
     beta_secrets = [None] * r
 
+    # call rand shares algorithm for each shareholder to get alpha and beta shares
     for i, shareholder in enumerate(shareholders):
         # call rand_shares to compute alpha and beta-shares
         # 2nd and 3rd value only for testing, delete later
@@ -55,7 +56,7 @@ def pre_mult(setup):
     all_alpha_shares = [None] * r
     all_beta_shares = [None] * r
     print(alpha_secrets, beta_secrets)
-    # sum over all alpha shares of one ID and append a '1' to call linear
+    # sum over all alpha shares of one ID and append a '1' (neutral element for multiplication) to call linear
     for j in range(r):
         tmp_alpha = []
         tmp_beta = []
@@ -70,17 +71,12 @@ def pre_mult(setup):
     for i in range(r):
         summed_alpha_shares.append(linear(all_alpha_shares[i], field_size))
         summed_beta_shares.append(linear(all_beta_shares[i], field_size))
-    '''
-    print("All calculated shares for alpha:\n", all_new_shares_alpha)
-    print("All calculated shares for beta:\n", all_new_shares_beta)
-    summed_alpha_shares = np.sum(all_new_shares_alpha, axis=0) % field_size
-    summed_beta_share = np.sum(all_new_shares_beta, axis=0) % field_size
-    '''
     print(all_alpha_shares, all_beta_shares)
-    summed_alpha_shares = [18, 28, 12]
-    summed_beta_shares = [22, 33, 14]
+    # summed_alpha_shares = [18, 28, 12]
+    # summed_beta_shares = [22, 33, 14]
     print("sums (each column represents a shareholder), alpha=", summed_alpha_shares, "beta=", summed_beta_shares)
     # second step: compute delta and epsilon
+    # we need the maximum j-value for further calculation/ indices
     max_j = max([shareholder[1] for shareholder in shareholders])
     # each shareholder s_l performs the following steps
     assert(r >= 1), "Can't calculate lambda and mu values"
@@ -167,7 +163,7 @@ def create_lambda_and_mu_matrices(field_size, l, matrix, r, shareholders, summed
     all_mu = np.zeros((r * r, r * (max_j + 1)))
     all_lambda_values = np.zeros((r * r, (max_j + 1)))
     all_mu_values = np.zeros((r * r, (max_j + 1)))
-    # each shareholder performas the summations
+    # each shareholder performs the summations
     for i, shareholder in enumerate(shareholders):
         # stored for later processing
         alpha_and_beta_shares[shareholder] = [int(summed_alpha_shares[i]), int(summed_beta_shares[i])]
@@ -274,7 +270,7 @@ def test_pre_mult():
     print("TRIPLE", triple)
     for i_, value in enumerate(triple):
         gammas["s_{}_{}".format(shareholders_[i_][0], shareholders_[i_][1])] = triple[value][2]
-    c, _, _, _, _ = reconstruct("1,2,3", random_subset=False, subset=gammas, print_statements=False)
+    c, c_f, _, _, _ = reconstruct("1,2,3", random_subset=False, subset=gammas, print_statements=False)
 
     alphas = {}
     for i_, value in enumerate(triple):
@@ -296,7 +292,7 @@ def test_pre_mult():
         print("YYYYYAAAAAAAAAASSSSSSSSSSSSSSEOEOEOEOEOEOEOEOEOEOEOEOAAAAAAAAAOEOEOEOEOEOEOEOEOEOEOEOEOEOEOEOEOEOEOEOEOEOEOEOEOEOEOEOEOEOEOEOEOEOEOEOEOEOEOEOEOEOOOEOOEEEOEOOEEOOEOOEOOEOEOOEOEOEOOEOEOEOEOSSS")
     else:
         print("a*b = {}, try again".format(a*b % outer_field_size))
-    # print(a_f, "\n", b_f)
+    print(a_f, "\n", b_f, "\n", c_f)
 
 
-test_pre_mult()
+# test_pre_mult()

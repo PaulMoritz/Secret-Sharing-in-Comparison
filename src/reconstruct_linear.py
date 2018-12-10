@@ -4,6 +4,7 @@ from read_and_write_data import read_data, read_field_size
 from function_tools import print_function
 import random
 from exceptions import *
+from path import get_data_path
 
 #
 # All Requirements taken from Traverso, G., Demirel, D, Buchmann, J: Dynamic and Verifiable Hierarchical Secret Sharing
@@ -13,9 +14,7 @@ from exceptions import *
 # random.seed(42)
 
 # path to DATA directory
-cwd = os.getcwd()
-main_directory = os.path.abspath(os.path.join(cwd, os.pardir))
-data_path = os.path.join(main_directory, "DATA")
+data_path = get_data_path()
 
 empty_dict = {}
 

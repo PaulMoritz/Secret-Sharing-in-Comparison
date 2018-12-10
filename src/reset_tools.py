@@ -2,11 +2,11 @@ from read_and_write_data import read_data
 import random
 import os
 import re
+from path import get_data_path
+
 
 # path to DATA directory
-cwd = os.getcwd()
-main_directory = os.path.abspath(os.path.join(cwd, os.pardir))
-data_path = os.path.join(main_directory, "DATA")
+data_path = get_data_path()
 
 
 # create new shares for the reset randomly

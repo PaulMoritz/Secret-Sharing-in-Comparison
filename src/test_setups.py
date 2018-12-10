@@ -14,13 +14,12 @@ from renew import renew
 from reset import reset
 from add import add
 from add_tools import merge_data
+from path import get_data_path
 
 # random.seed(42)
 
 # path to DATA directory
-cwd = os.getcwd()
-main_directory = os.path.abspath(os.path.join(cwd, os.pardir))
-data_path = os.path.join(main_directory, "DATA")
+data_path = get_data_path()
 
 prime = 997
 

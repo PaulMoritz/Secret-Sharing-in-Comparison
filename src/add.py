@@ -10,13 +10,14 @@ import math
 import numpy as np
 import os
 from copy import deepcopy
+from path import get_data_path
+
 
 # np.random.seed(42)
 
 # get path to DATA directory
-cwd = os.getcwd()
-main_directory = os.path.abspath(os.path.join(cwd, os.pardir))
-data_path = os.path.join(main_directory, "DATA")
+data_path = get_data_path()
+
 
 
 # add a new shareholder to the given setup without altering the thresholds

@@ -3,13 +3,11 @@ import copy
 from function_tools import derive_function, generate_function, calc_function, print_function, is_prime
 from read_and_write_data import write_shares, read_level_stats
 from reconstruction_tools import calc_derivative_vector
-import numpy as np
+from path import get_data_path
 
 
 # path to DATA directory
-cwd = os.getcwd()
-main_directory = os.path.abspath(os.path.join(cwd, os.pardir))
-data_path = os.path.join(main_directory, "DATA")
+data_path = get_data_path()
 
 # seed for testing only! unsafe otherwise
 # np.random.seed(42)

@@ -2,11 +2,11 @@ import os
 import pandas as pd
 import csv
 import os.path as path
+from path import get_data_path
+
 
 # path to DATA directory
-cwd = os.getcwd()
-main_directory = os.path.abspath(os.path.join(cwd, os.pardir))
-data_path = os.path.join(main_directory, "DATA")
+data_path = get_data_path()
 
 
 # read all possible data from a given setup
@@ -99,7 +99,7 @@ def read_level_stats(file_path):
 
 # write the calculated share values to a comma separated file, also save the finite field size
 def write_shares(field_size, file_path, resulting_shares):
-    with open(file_path, 'w+', newline='', encoding='utf8') as file:
+    with open(file_path, 'w', newline='', encoding='utf8') as file:
         writer = csv.writer(file)
         # writer.writerow(["Chosen finite field size", field_size])
         writer.writerow(["Shareholder", "Share"])

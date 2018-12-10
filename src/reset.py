@@ -8,11 +8,11 @@ from read_and_write_data import read_data, read_field_size
 from determinant import determinant, get_minor
 import numpy as np
 import copy
+from path import get_data_path
 
-# get path to DATA directory
-cwd = os.getcwd()
-main_directory = os.path.abspath(os.path.join(cwd, os.pardir))
-data_path = os.path.join(main_directory, "DATA")
+
+# path to DATA directory
+data_path = get_data_path()
 new_list = []
 debug = False
 
