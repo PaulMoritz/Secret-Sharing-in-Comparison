@@ -1,0 +1,41 @@
+--- #example 1
+setup: [1, 2]
+
+--- #example 2
+setup: [2, 2]
+
+--- #example 3
+setup: [1, 3]
+
+--- #example 4
+setup: [2, 3]
+
+--- #example 5
+setup: [3, 3]
+
+--- #example 6
+setup: [1, 4]
+
+--- #example 7
+setup: [2, 4]
+
+--- #example 8
+setup: [3, 4]
+
+--- #example 9
+setup: [4, 4]
+
+--- #example 10
+setup: [1, 5]
+
+--- #example 11
+setup: [2, 5]
+
+--- #example 12
+setup: [3, 5]
+
+--- #example 13
+setup: [4, 5]
+
+--- #example 14
+setup: [5, 5]
