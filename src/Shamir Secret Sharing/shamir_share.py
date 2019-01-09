@@ -1,8 +1,8 @@
 import os
 import sys
 sys.path.append(os.pardir)
-from function_tools import generate_function, calc_function, is_prime
-from lagrange_interpolation import *
+from function_tools import generate_function, calc_function, is_prime, print_function
+from lagrange_interpolation import reconstruct
 from read_and_write_data import write_shares
 from path import get_data_path_sss
 import os
@@ -11,6 +11,8 @@ import yaml
 
 # path to DATA/SSS directory
 data_path = get_data_path_sss()
+
+random.seed(42)
 
 
 # generate a random function and compute share-values for participating shareholders
@@ -43,7 +45,7 @@ def make_random_shares(minimum_number_of_shares, number_of_people, message, fiel
         shares[i] = calc_function(polynomial, i, field_size)
     # write computed shares to file
     write_shares(field_size, os.path.join(file_path, "shares.csv"), shares)
-    return polynomial[0][0], shares
+    return polynomial[0][0], polynomial, shares
 
 
 def main():
@@ -56,16 +58,18 @@ def main():
             sys.exit(1)
         for doc in docs:
             setup = doc['setup']
-            minimum_number_of_shares = setup[0]
-            number_of_people = setup[1]
+            info = setup.split(',')
+            minimum_number_of_shares = int(info[0])
+            number_of_people = int(info[1])
             random_message = random.randint(0, field_size - 1)
-            secret, shares = make_random_shares(minimum_number_of_shares=minimum_number_of_shares,
+            secret, polynomial, shares = make_random_shares(minimum_number_of_shares=minimum_number_of_shares,
                                                 number_of_people=number_of_people, message=random_message,
                                                 field_size=field_size)
             print("Setup", setup)
             print('secret:\t\t\t', secret)
             print('shares:', shares)
-            reconstructed = reconstruct(shares, field_size)
+            print("f(x) =", print_function(polynomial, False))
+            reconstructed = reconstruct(setup, shares, field_size)
             print('secret recovered:\t', reconstructed)
             assert (reconstructed == random_message), "Incorrect reconstruction"
             print("Reconstruction successful")
