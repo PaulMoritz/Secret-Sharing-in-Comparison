@@ -12,4 +12,4 @@ This repository provides code for Shamir secret sharing and hierarchical secret 
 ## Structure
 
 The code is split up between Shamir secret sharing and hierarchical secret sharing.
-The instructions for both can be found in  [HSS](./Description_Hierarchical.md) for **h**ierarchical **s**ecret **s**haring and [SSS](./Description_Shamir) for **S**hamir **s**ecret **s**haring.
+The instructions for both can be found in  [HSS](./Description_Hierarchical.md) for **h**ierarchical **s**ecret **s**haring and [SSS](./Description_Shamir.md) for **S**hamir **s**ecret **s**haring.
