@@ -223,3 +223,47 @@ renews the shares of the `old_shares` and saves new share values that can also r
         's_3_2': 64, 's_4_2': 5, 's_5_2': 5, 's_7_2': 12, 's_1_4': 65, 's_2_4': 61, 
         's_4_4': 22, 's_8_4': 37, 's_9_4': 10}, new_shareholder_id=(10,4))
 `
+
+---
+
+### Linear
+
+Use [linear.py](./code_tested/code/hss/linear.py)  perform linear operations on messages.
+
+`linear(list_of_tuples, field_size, print_result=False)`
+calculates the linear combination of the provided tuples, eg for (3, 4) and (5,6) it produces 3\*4 + 5\*6 = 42
+- list_of_tuples (list of Integerpairs): each tuple represents _(lambda_l, sigma_i,j (m_l))_, the algorithm iteartes over all tuples
+- field_size (Integer): The size of the finite field we're working on
+- print_result (Boolean, _Default_ `False`): wheter the result shall be printed after execution (needed because `linear` is used internally)
+
+**Example Calls:**
+
+`linear([[3,4],[5,6]], field_size=997)`
+
+---
+
+### RandShares
+
+Use [multiply_tools.py](./code_tested/code/hss/multiply_tools.py) to create random shares for a chosen secret value.
+>**NOTE** that this algorithm only computes the shares for one of alpha/beta and not both. For this, the algorithms have to be called multiple times
+
+`rand_shares_calculation(field_size, shareholders, thresholds, conjunctive)`
+calculates the shares for one shareholder and returns a list of those shares
+- field_size (Integer): the finite field we work in
+- shareholders (list of IDs): list of IDs of the participating shareholders
+- thresholds (list of Integer): the threshold for each level in a list
+- conjunctive (Boolean): whether or not we have a conjunctive setup
+
+`rand_shares_summation(all_new_shares, field_size, r)`
+takes all shares from all shareholders calculated in `rand_shares_calculation` and sums them up to get exactly one share per shareholder
+- all_new_shares (list of lists of Integers): all shares calculated (from and for each shareholder), to be summed up. Each list corresponds to one call of `rand_shares_calculation`, where the shares for one shareholder are calculated
+- field_size (Integer): The size of the finite field we're working on
+- r (Integer): number of shareholders participating
+
+---
+
+### PreMult
+
+---
+
+### Multiply

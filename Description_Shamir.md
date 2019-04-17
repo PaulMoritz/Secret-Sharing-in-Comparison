@@ -11,7 +11,7 @@ To use the framework, Python 3.6.x is recommended as I didn't test on other dist
 in [requirements.txt](./requirements.txt).  
 To install requirements via pip just run  
 `pip install -r requirements.txt`  
-from the main (HSS) directory.
+from the main directory.
 
 ## Usage:
 You can create share values for a given secret message for the Shareholders with the methods from [Share](#share).  
@@ -21,13 +21,12 @@ Last, to renew the share values for an authorised set (or all) of shareholders, 
 
 ## Functionality:
 
----
 
 
 ### Share
 Use [shamir_share.py](./code_tested/code/sss/shamir_share.py) to generate a function and create shares for a given secret message.
 
-`share(setup, message, prime_number):`  
+`make_random_shares(minimum_number_of_shares, number_of_people, message, field_size):`  
 creates shares for all Shareholders in one setup
 - minimum_number_of_shares (Integer): value _t_, the threshold of the setup
 - number_of_people (Integer): value _n_, the number of participating people 
@@ -38,7 +37,7 @@ creates shares for all Shareholders in one setup
 
 **Example Calls:**  
 
-`shamir_share(3, 7, 42, 71)`  
+`shamir_share(minimum_number_of_shares=3, number_of_people=7, message=42, field_size=71)`  
 
 ---
 
