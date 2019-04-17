@@ -91,7 +91,7 @@ creates shares for all Shareholders in one setup
 - setup (String): The Name of a created setup to use.  
 - message (Integer): the message/secret you want to share
 Note that the setup needs to be created first.
-- prime_number (Integer): Prime number to build a finite field, default value = 31  
+- prime_number (Integer): Prime number to build a finite field, default value = 997  
   
   
 
@@ -181,3 +181,45 @@ renews the shares of the `old_shares` and saves new share values that can also r
 > from the _code_tested/code/hss_ directory.
 >
 > You can find example calls in [main.py](./code_tested/code/hss/main.py)
+---
+
+### Reset
+
+Use [reset.py](./code_tested/code/hss/reset.py) to reset the structure, i.e. the thresholds and shareholders per level. The Shareholders must be able to retrieve the result from the original setup.  
+
+`reset(setup, old_shares)`  
+resets the structure of the `old_shares` and saves new shares that can also reconstruct the secret message.
+- setup (String): The name of the setup we want to work on
+- old_shares (Dict of _(Shareholder, Share)_ pairs): the subset of old shares (Authorized on the setup) which want to reset the given structure
+- new_shares(List of  _(people, threshold)_ pairs): list of structure of the new setup (see lvl_list in [Setup](#setup))
+
+  
+  
+
+**Example Calls:**  
+
+`reset("Big_Company", old_shares={'s_1_0': 23, 's_3_0': 29, 's_1_2': 70, 's_2_2': 40, 
+        's_3_2': 64, 's_4_2': 5, 's_5_2': 5, 's_7_2': 12, 's_1_4': 65, 's_2_4': 61, 
+        's_4_4': 22, 's_8_4': 37, 's_9_4': 10}, new_shares=[[1,0],[3,2],[7,4],[9,10]])
+`
+
+---
+
+### Add
+
+Use [add.py](./code_tested/code/hss/add.py) to add a new shareholder. The Shareholders participating must be able to retrieve the result from the original setup.  
+
+`add(setup, old_shares)`  
+renews the shares of the `old_shares` and saves new share values that can also reconstruct the secret message.
+- setup (String): The name of the setup we want to work on
+- old_shares (Dict of _(Shareholder, Share)_ pairs): the subset of old shares (Authorized on the setup) participating in the process  
+- new_shareholder_id (pair _(i,j)_ of integers): The ID for the new shareholder with _i_,_j_ as the person number and level respectively
+  
+  
+
+**Example Calls:**  
+
+`add("Big_Company", old_shares={'s_1_0': 23, 's_3_0': 29, 's_1_2': 70, 's_2_2': 40, 
+        's_3_2': 64, 's_4_2': 5, 's_5_2': 5, 's_7_2': 12, 's_1_4': 65, 's_2_4': 61, 
+        's_4_4': 22, 's_8_4': 37, 's_9_4': 10}, new_shareholder_id=(10,4))
+`
