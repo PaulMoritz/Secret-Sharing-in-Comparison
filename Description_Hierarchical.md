@@ -26,7 +26,7 @@ Last, to renew the share values for an authorised set (or all) of shareholders, 
 > **INFO** All used subfunctions are explained in detail in [subfunctions.md](./subfunctions.md)
 
 > **Update** To make accessing the main functionality easier, calls from the command-line were added. They are specified in the _Update_ section of each paragraph.
- As this causes much input error-handling, not every input error will be caught. Please make sure you use the format provided, some example calls are included in [main.py](./code_tested/main.py).
+ As this causes much input error-handling, not every input error will be caught. Please make sure you use the format provided, some example calls are included in [main.py](./code_tested/code/hss/main.py).
 
 
 ## Functionality:
@@ -35,7 +35,7 @@ Last, to renew the share values for an authorised set (or all) of shareholders, 
 
 ### Setup
 
-use [setup.py](./code_tested/setup.py) to create a new setup for a scenario to test.
+use [setup.py](./code_tested/code/hss/setup.py) to create a new setup for a scenario to test.
 
 `setup(name, lvl_list, conjunctive):`  
 sets up a new scenario
@@ -78,13 +78,13 @@ prints all info about the setup
 > `python main.py setup (*setup_name*) list`  
 > where the setup name is optional (not necessary for execution).
 >
-> from the _code_tested_ directory.
+> from the _code_tested/code/hss_ directory.
 >
-> You can find example calls in [main.py](./code_tested/main.py)
+> You can find example calls in [main.py](./code_tested/code/hss/main.py)
 ---
 
 ### Share
-Use [share.py](./code_tested/share.py) to generate a function and create shares for a given secret message.
+Use [share.py](./code_tested/code/hss/share.py) to generate a function and create shares for a given secret message.
 
 `share(setup, message, prime_number):`  
 creates shares for all Shareholders in one setup
@@ -104,9 +104,9 @@ Note that the setup needs to be created first.
 > **Update**: Share can also be called _directly from the console_ by calling
 >- `python main.py share *setup_name* *secret_message*`  
 >
-> from the _code_tested_ directory.
+> from the _code_tested/code/hss_ directory.
 >
-> You can find example calls in [main.py](./code_tested/main.py)
+> You can find example calls in [main.py](./code_tested/code/hss/main.py)
 
 
 
@@ -114,7 +114,7 @@ Note that the setup needs to be created first.
 
 ### Reconstruct
 
-Use [reconstruct.py](./code_tested/reconstruct.py) to reconstruct the secret message from a subset of shareholders.
+Use [reconstruct.py](./code_tested/code/hss/reconstruct.py) to reconstruct the secret message from a subset of shareholders.
 
 `reconstruct(setup, number_of_people, random_subset=True, subset=[], print_statements=True)`  
 reconstructs the secret and the whole generated equation from [Share](#share) using a system of linear equations.
@@ -143,14 +143,14 @@ reconstructs the secret and the whole generated equation from [Share](#share) us
 > `python main.py reconstruct *setup_name* False *subset*`  
 > _When using this call, make sure that you don't leave any spaces in the subset itself. This would prevent parsing from being successful._
 >
-> from the _code_tested_ directory.
+> from the _code_tested/code/hss_ directory.
 >
-> You can find example calls in [main.py](./code_tested/main.py)
+> You can find example calls in [main.py](./code_tested/code/hss/main.py)
 ---
 
 ### Renew
 
-Use [renew.py](./code_tested/renew.py) to renew the shares of a given set of Shareholders. The Shareholders must be able to retrieve the result from the original setup.  
+Use [renew.py](./code_tested/code/hss/renew.py) to renew the shares of a given set of Shareholders. The Shareholders must be able to retrieve the result from the original setup.  
 
 `renew(setup, old_shares)`  
 renews the shares of the `old_shares` and saves new share values that can also reconstruct the secret message.
@@ -178,6 +178,6 @@ renews the shares of the `old_shares` and saves new share values that can also r
 
 >- To use _all_ old shares, it is important that `{'shares':'all'}` is written exactly like this (also the apostrophes) in the console so that it can be parsed correctly.
 >
-> from the _code_tested_ directory.
+> from the _code_tested/code/hss_ directory.
 >
-> You can find example calls in [main.py](./code_tested/main.py)
+> You can find example calls in [main.py](./code_tested/code/hss/main.py)
