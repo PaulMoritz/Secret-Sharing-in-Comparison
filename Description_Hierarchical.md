@@ -152,11 +152,13 @@ reconstructs the secret and the whole generated equation from [Share](#share) us
 
 Use [renew.py](./code_tested/code/hss/renew.py) to renew the shares of a given set of Shareholders. The Shareholders must be able to retrieve the result from the original setup.  
 
-`renew(setup, old_shares)`  
+`renew(setup, old_shares, reset_version_number=None, print_statements=True)`  
 renews the shares of the `old_shares` and saves new share values that can also reconstruct the secret message.
 - setup (String): The name of the setup we want to work on
 - old_shares (Dict of _(Shareholder, Share)_ pairs): the subset of old shares (Authorized on the setup) for which we want to renew the share values  
 > *INFO: For convenience a shortcut was added, if you use the parameter* `old_shares={'shares': 'all'}` *, it will automatically take **all** shareholders from the setup as old shareholders and renew their values (similar to a reset but with the same general structure remaining)*
+- reset_version_number=None (Integer): if provided, this is the number appended to the saved file to not override the original shares
+- print_statements(Boolean),  _Default Value_ = `True`: Determines if all taken steps are printed to the console.
   
   
 
@@ -187,12 +189,15 @@ renews the shares of the `old_shares` and saves new share values that can also r
 
 Use [reset.py](./code_tested/code/hss/reset.py) to reset the structure, i.e. the thresholds and shareholders per level. The Shareholders must be able to retrieve the result from the original setup.  
 
-`reset(setup, old_shares)`  
+`reset(setup, old_shares, new_shares=[], create_new_shares_randomly=False, number_of_random_shares=0, reset_version_number=None, print_statements=True)`  
 resets the structure of the `old_shares` and saves new shares that can also reconstruct the secret message.
 - setup (String): The name of the setup we want to work on
 - old_shares (Dict of _(Shareholder, Share)_ pairs): the subset of old shares (Authorized on the setup) which want to reset the given structure
 - new_shares(List of  _(people, threshold)_ pairs): list of structure of the new setup (see lvl_list in [Setup](#setup))
-
+- create_new_shares_randomly (Boolean): wheter the new setup is to be chosen randomly
+- number_of_random_shares (Integer): the number of people in the new setup
+- reset_version_number=None (Integer): if provided, this is the number appended to the saved file to not override the original shares
+- print_statements(Boolean),  _Default Value_ = `True`: Determines if all taken steps are printed to the console.
   
   
 
@@ -209,11 +214,15 @@ resets the structure of the `old_shares` and saves new shares that can also reco
 
 Use [add.py](./code_tested/code/hss/add.py) to add a new shareholder. The Shareholders participating must be able to retrieve the result from the original setup.  
 
-`add(setup, old_shares)`  
+`add(setup, old_shares, new_shareholder_id=(0, 0), choose_id_randomly=False, reset_version_number=None, print_statements=True, function_f=[])`  
 renews the shares of the `old_shares` and saves new share values that can also reconstruct the secret message.
 - setup (String): The name of the setup we want to work on
 - old_shares (Dict of _(Shareholder, Share)_ pairs): the subset of old shares (Authorized on the setup) participating in the process  
 - new_shareholder_id (pair _(i,j)_ of integers): The ID for the new shareholder with _i_,_j_ as the person number and level respectively
+- choose_id_randomly (Boolean, _Default_ `False`): _not yet implemented, chooses a random ID for the new shareholder_
+- reset_version_number=None (Integer): if provided, this is the number appended to the saved file to not override the original shares
+- print_statements(Boolean),  _Default Value_ = `True`: Determines if all taken steps are printed to the console.
+- function_f (list of lists, _default_ `empty`): if provided, a check is executed wheter the new share is on the given the polynomial
   
   
 
@@ -264,6 +273,24 @@ takes all shares from all shareholders calculated in `rand_shares_calculation` a
 
 ### PreMult
 
+Use [multiply_tools.py](./code_tested/code/hss/multiply_tools.py) to create a share of gamma for each shareholder (and thus the triple alpha, beta, gamma needed for multiply), the algorithm is using the calculation of shares for alpha and beta from randShares.
+
+`pre_mult(setup)`
+calculates a triple  of shares for_(alpha, beta, gamma)_ from known alpha, beta values for each shareholder, needed in multilpy
+- setup (String): The name of the setup we want to work on, to know about the shareholders
+
+**Example Calls:**
+
+`pre_mult("Big_Company")`
+
 ---
 
 ### Multiply
+
+Use [multiply.py](./code_tested/code/hss/multiply.py) to multiply shares of two messages m_1, m_2 and return the share of m, where m=m_1\*m_2.
+
+`multiply(setup, messages, print_statements=True)`
+multiplies two  shares ofmessages and returns the share of the product of the two messages without reconstructing them. multiply makes use of preMult, which uses randShares.
+- setup (String): The name of the setup we want to work on (needed for the structure and metadata of shareholders)
+- messages (dict of _(shareholder,: messages)_ pairs, where messages are the share of m_1 and m_2 of this shareholder respectively (in a list)): a dict of the shares of the two messages for each shareholder
+- print_statements(Boolean),  _Default Value_ = `True`: Determines if all taken steps are printed to the console.
