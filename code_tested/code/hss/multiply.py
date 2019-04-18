@@ -98,4 +98,4 @@ def compute_delta_epsilon(m_1, m_2, computed_shares, field_size):
     return share_delta, share_epsilon
 
 
-multiply("1,2,3", {(1, 0): (7, 13), (2, 1): (14, 22), (3, 2): (6, 8)})
+# multiply("1,2,3", {(1, 0): (7, 13), (2, 1): (14, 22), (3, 2): (6, 8)})
