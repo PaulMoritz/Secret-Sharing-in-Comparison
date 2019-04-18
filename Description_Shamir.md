@@ -185,3 +185,7 @@ multiplies two  shares ofmessages and returns the share of the product of the tw
 - setup (String): The name of the setup we want to work on (needed for the structure and metadata of shareholders)
 - messages (dict of _(shareholder,: messages)_ pairs, where messages are the share of m_1 and m_2 of this shareholder respectively (in a list)): a dict of the shares of the two messages for each shareholder
 - print_statements(Boolean),  _Default Value_ = `True`: Determines if all taken steps are printed to the console.
+
+**Example Calls:**
+
+`multiply("2,4", {1: (560, 361), 2: (119, 717), 3: (675, 76), 4: (234, 432)})`
