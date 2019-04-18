@@ -65,7 +65,7 @@ def setup(name, lvl_list, field_size=997, conjunctive=True):
         os.mkdir(file_path)
     except OSError as e:
         print("Directory could not be created, please try again. "
-              "Make sure you don't use any of the following characters in the setup name: \ / : * ? < > |\n{}"
+              "Make sure you don't use any of the following characters in the setup name: \\ / : * ? < > |\n{}"
               .format(repr(e)))
         raise
     # create info.csv file
